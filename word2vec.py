@@ -13,6 +13,9 @@ import numpy as np
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 import twitter
@@ -236,7 +239,7 @@ with graph.as_default():
   init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 100001
+num_steps = 1000
 
 with tf.Session(graph=graph) as session:
   # We must initialize all variables before we use them.
@@ -294,6 +297,7 @@ def plot_with_labels(low_dim_embs, labels, filename):
                  va='bottom')
 
   plt.savefig(filename)
+  plt.show()
 
 
 try:
