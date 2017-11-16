@@ -8,6 +8,7 @@ api = twitter.Api(
 	access_token_key="2922124038-CkJDWlQwfAug5PirV5x8PiXbflyNCLsERiy168B",
 	access_token_secret="xNoWcY03pCTkzyIEELTGNmXxtuKZ5qXajUgXc4k7tRkBJ"
 	)
+query = "q=bitcoin OR ethereum%20&result_type=recent&since=2016-07-19&count=100"
 
 
 def search(query):
@@ -62,22 +63,22 @@ def getTextCorpus(tweets):
 		corpus.update(words)
 	return corpus
 
-def integerizeCorpus(corpus):
+def integerizeCorpus(numTweets):
+	corpus, tweets = getTotalCorpus(numTweets)
 	d = {}
 	count = 0
 	for word in corpus:
 		d[word]=count
 		count+=1
-	return d
+	return d,corpus,tweets
 
 
 
-query = "q=bitcoin OR ethereum%20&result_type=recent&since=2016-07-19&count=100"
 
-numTweets = 90
+"""numTweets = 90
 corpus, tweets = getTotalCorpus(numTweets)
 int_corpus = integerizeCorpus(corpus)
-data,labels = getData(int_corpus,tweets)
+data,labels = getData(int_corpus,tweets)"""
 
 
 
