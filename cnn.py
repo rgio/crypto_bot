@@ -10,9 +10,6 @@ import pdb
 from tensorflow.contrib import learn
 
 # Price data/ CNN specific hyperparameters
-# learning_rate = 0.00003 # alpha (step size) of the Adam optimization
-learning_rate = 0.001
-price_batch_size = 60
 num_coins = 11
 window_size = 50
 filterSize = [num_coins, 4]
@@ -42,19 +39,23 @@ def new_cnn_model(x):
 	"""Low level model for a CNN."""
 
 	# Reshape the input to use as our first feature layer
-	input_price = tf.reshape(x, [-1, num_coins, window_size, num_input_channels])
+	with tf.name_scope('reshape_input'):
+		input_price = tf.reshape(x, [-1, num_coins, window_size, num_input_channels])
 
 	# First convolution layer
-	W_conv1 = weight_variable([1, 3, num_input_channels, num_conv1_features])
-	P_conv1 = weight_variable([1,1,num_conv1_features*num_input_channels,num_conv1_features])
-	b_conv1 = bias_variable([num_conv1_features])
-	#h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
-	h_conv1 = tf.nn.relu(separable_conv2d(input_price, W_conv1, P_conv1) + b_conv1)
-	#pdb.set_trace()
+	with tf.name_scope('conv1'):
+
+		W_conv1 = weight_variable([1, 3, num_input_channels, num_conv1_features])
+		P_conv1 = weight_variable([1,1,num_conv1_features*num_input_channels,num_conv1_features])
+		b_conv1 = bias_variable([num_conv1_features])
+		#h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
+		h_conv1 = tf.nn.relu(separable_conv2d(input_price, W_conv1, P_conv1) + b_conv1)
+
 	# Second convolution layer
-	W_conv2 = weight_variable([1, window_size-2, num_conv1_features, num_conv2_features])
-	b_conv2 = bias_variable([num_conv2_features])
-	h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
+	with tf.name_scope('conv2'):
+		W_conv2 = weight_variable([1, window_size-2, num_conv1_features, num_conv2_features])
+		b_conv2 = bias_variable([num_conv2_features])
+		h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 	
 	# TODO: concate  weights from previous step to conv_2 (or maybe conv2_flat)
 	# Add in previous weights as a feature
@@ -67,34 +68,36 @@ def new_cnn_model(x):
 
 
 	# First fully connected layer
-	#W_fc1 = weight_variable([num_coins*num_input_channels*num_conv2_features, num_fc1_neurons])
-	W_fc1 = weight_variable([num_coins*num_conv2_features, num_fc1_neurons])
-	b_fc1 = weight_variable([num_fc1_neurons])
-	h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
+	with tf.name_scope('fc1'):
+		W_fc1 = weight_variable([num_coins*num_conv2_features, num_fc1_neurons])
+		b_fc1 = weight_variable([num_fc1_neurons])
+		# Flatten the 2nd convolution layer prior to the fully connected layers
+		h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])	
+		h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
 
 	# Dropout on first connected layer during training
-	keep_prob = tf.placeholder(tf.float32)
-	h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+	with tf.name_scope('dropout'):
+		keep_prob = tf.placeholder(tf.float32)
+		h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 	
 	# Second fully connected layer - softmax of this layer is the portfolio weights
-	W_fc2 = weight_variable([num_fc1_neurons, num_coins])
-	b_fc2 = bias_variable([num_coins])
-	h_fc2 = tf.nn.relu(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+	with tf.name_scope('fc2'):
+		W_fc2 = weight_variable([num_fc1_neurons, num_coins])
+		b_fc2 = bias_variable([num_coins])
+		h_fc2 = tf.nn.relu(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 	
-	# Add in a bias for cash 
-	cash_bias = tf.Variable(0.0)
-	cash_bias_tensor = tf.fill([tf.shape(input_price)[0], 1], cash_bias)
-	h_fc2_cash = tf.concat([h_fc2, cash_bias_tensor], 1)
 
-	#pdb.set_trace()
+	# Add in a bias for cash
+	with tf.name_scope('cash'): 
+		cash_bias = tf.Variable(0.0)
+		cash_bias_tensor = tf.fill([tf.shape(input_price)[0], 1], cash_bias)
+		h_fc2_cash = tf.concat([h_fc2, cash_bias_tensor], 1)
 		
 	# Final portfolio weight tensor
-	weights = tf.nn.softmax(h_fc2_cash, name="output_tensor")
-
-	#lstm_cell = rnn.BasicLSTMCell(num_hidden, forget_bias=1.0)
+	with tf.name_scope('weights'):
+		weights = tf.nn.softmax(h_fc2_cash, name="output_tensor")
 	# past_weights = tf.slice()
 
-	# return h_fc2_cash, keep_prob
 	return weights, keep_prob
 
 def icnn_model_fn(features, labels, mode):

@@ -30,6 +30,7 @@ num_input_channels = 3 # high,open, volume
 
 def main():
 	# Load training and eval data
+<<<<<<< HEAD
 	input_array = read_data()
 	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
@@ -38,6 +39,9 @@ def main():
 	train, validation, test = split_data(input_array, train_size, validation_size, test_size)
 	train_data, train_labels = get_data(train, window_size, stride)
 	validation_data, validation_labels = get_data(validation, window_size, stride)
+	validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], num_coins))
+	btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
+	validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
 	test_data, test_labels = get_data(test, window_size, stride)
 	test_labels = np.reshape(test_labels, (test_labels.shape[0], num_coins))
 	btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
@@ -55,10 +59,7 @@ def main():
 
 	# Define the loss
 	with tf.name_scope('loss'):
-		#loss = tf.losses.log_loss(tf.nn.softmax(labels), weights)
 		loss = calc_minus_log_rate_return(labels, weights)
-		# cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=tf.nn.softmax(labels), logits=weights)
-	# cross_entropy = tf.reduce_mean(cross_entropy)
 	loss = tf.reduce_mean(loss)
 
 	# Define the optimizer
@@ -67,35 +68,38 @@ def main():
 
 	# Define the testing conditions
 	with tf.name_scope('value'):
-		# correct_prediction = tf.equal(tf.argmax(labels, 1), tf.argmax(weights, 1))
-		# correct_prediction = tf.cast(correct_prediction, tf.float32)
-		# value = tf.losses.log_loss(tf.nn.softmax(labels), weights)
 		value = calc_portfolio_value_change(labels, weights)
 	value = tf.reduce_prod(value)
 	# accuracy = tf.reduce_mean(correct_prediction)
 
 	# Decide where the graph is stored
+
+
+	# Decide where the graph and model is stored
 	graph_location = tempfile.mkdtemp()
 	print('Saving graph to %s' % graph_location)
 	train_writer = tf.summary.FileWriter(graph_location)
 	train_writer.add_graph(tf.get_default_graph())
+	saver = tf.train.Saver()
 
 	# Run the training and testing
 	with tf.Session() as sess:
-	 	sess.run(tf.global_variables_initializer())
-	 	for i in range(num_training_steps):
-	 		batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins) 
-	 		if i % 1000 == 0:
-	 			print('input price',input_prices.eval(feed_dict={
-	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0}))
-	 			print('weights',weights.eval(feed_dict={
-	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0}))
-	 			train_loss = loss.eval(feed_dict={
+		sess.run(tf.global_variables_initializer())
+		for i in range(num_training_steps):
+			batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i) 
+			if i % 1000 == 0:
+				train_value = final_value.eval(feed_dict={
 	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0})
-	 			print('step %d, training loss %g' % (i, train_loss))
-	 		train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
-	 	print('test value %g' % value.eval(feed_dict={
-	 		input_prices: test_data, labels: test_labels, keep_prob: 1.0}))
+				print('step %d, train_value %g' % (i, train_value))
+	 			#print(train_value)
+			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
+		print('size of validation %d - validation portolio value multiplier %g' % (validation_size, final_value.eval(feed_dict={
+	 		input_prices: validation_data, labels: validation_labels, keep_prob: 1.0})))
+		print('size of test %d - test portolio value multiplier %g' % (test_size, final_value.eval(feed_dict={
+	 		input_prices: test_data, labels: test_labels, keep_prob: 1.0})))
+		save_path = saver.save(sess, "/tmp/crypto_bot_test/cnn_model.ckpt")
+		print("Model saved in file: %s" % save_path)
+
 
 	# # Create the estimator
 	# classifieriCNN = tf.estimator.Estimator(

@@ -30,7 +30,7 @@ def read_data():
 				btc_ltc.append(row)
 			prices['BTC_LTC']=btc_ltc
 		# with open('data/BTC_XRP.csv', 'r') as file:
-		with open('data/test/btc_ltc_test.csv', 'r') as file:
+		with open('data/test/btc_xrp_test.csv', 'r') as file:
 			reader = csv.reader(file, delimiter = ' ', quotechar='|')
 			btc_xrp = []
 			for row in reader:
@@ -122,13 +122,35 @@ def read_data():
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
+		global_dp_dt_array = calc_dp_dt_array(global_high_array, 1.0)
 
-		# Insert row of ones for btc_btc ratio
-		# btc_btc = np.ones( (1,max_length), dtype=np.float32)
-		# global_price_array = np.insert(global_price_array, 0, btc_btc, axis=0)
-		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array],axis=2)
+
+		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
 
 		return input_array
+
+
+def calc_dp_dt_array(p, h):
+	dp_dt_array = np.zeros(p.shape, dtype=np.float32)
+	# loop over num_coins
+	for i in range(p.shape[0]): 
+		# loop over all time steps
+		for j in range(p.shape[1]): 
+			if j == 0: 
+				# 1st order forward finite difference method
+				dp_dt_array[i,j] = p[i,j+1]-p[i,j]
+			elif j == p.shape[1]-1: 
+				# 1st order backward finite difference method
+				dp_dt_array[i,j] = p[i,j]-p[i,j-1]
+			elif (j == 1 or j == p.shape[1]-2): 
+				# 2nd order finite difference method
+				dp_dt_array[i,j] = (p[i,j+1]-p[i,j-1]) / 2.0
+			else: 
+				# a 4th order finite difference method
+				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
+	dp_dt_array = np.divide(dp_dt_array, h)
+	return dp_dt_array
+
 
 #TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -172,8 +194,8 @@ def get_data(array,window_size,stride):
 	#print(np.array(price_changes))
 	return np.array(train),np.array(price_changes)
 
-def get_next_price_batch(prices, price_changes, batch_size, num_coins):
-	start_index = np.random.random_integers(0, prices.shape[0]-batch_size)
+def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_step):
+	start_index = training_step % (prices.shape[0]-batch_size)
 	p = prices[start_index:start_index+batch_size,:,:]
 	p_c = price_changes[start_index:start_index+batch_size,:,:]
 	p_c = np.reshape(p_c, (batch_size, num_coins))
@@ -181,7 +203,6 @@ def get_next_price_batch(prices, price_changes, batch_size, num_coins):
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	#pdb.set_trace()
 	return p, p_c
-
 
 
 
