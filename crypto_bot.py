@@ -14,6 +14,7 @@ from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_f
 from price_data import *
 from cnn import *
 from loss_value import *
+import pdb
 
 # Set up logging
 tf.logging.set_verbosity(tf.logging.INFO)
@@ -22,18 +23,19 @@ tf.logging.set_verbosity(tf.logging.INFO)
 window_size = 50
 stride = 1
 transaction_cost = 0.0025 # 0.25% commission fee for each transaction
-price_batch_size = 100
-num_training_steps = 100000
+price_batch_size = 200
+num_training_steps = 30000
 num_coins = 11
+num_input_channels = 3 # high,open, volume
 
 def main():
 	# Load training and eval data
-	global_price_array = read_data()
-	total_time_steps = len(global_price_array[0])
+	input_array = read_data()
+	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
 	validation_size = int(total_time_steps*0.15)
 	test_size = int(total_time_steps*0.15)
-	train, validation, test = split_data(global_price_array, train_size, validation_size, test_size)
+	train, validation, test = split_data(input_array, train_size, validation_size, test_size)
 	train_data, train_labels = get_data(train, window_size, stride)
 	validation_data, validation_labels = get_data(validation, window_size, stride)
 	test_data, test_labels = get_data(test, window_size, stride)
@@ -42,16 +44,19 @@ def main():
 	test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
 
 	# Create the model
-	input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size])
+	#input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size])
+	input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size, num_input_channels])
 	labels = tf.placeholder(tf.float32, [None, num_coins+1])
 
 	# Build the graph
 	weights, keep_prob = new_cnn_model(input_prices)
 
+	#pdb.set_trace()
+
 	# Define the loss
 	with tf.name_scope('loss'):
-		# loss = tf.losses.log_loss(tf.nn.softmax(labels), weights)
-		loss = calc_minus_log_rate_return(tf.nn.softmax(labels), weights)
+		#loss = tf.losses.log_loss(tf.nn.softmax(labels), weights)
+		loss = calc_minus_log_rate_return(labels, weights)
 		# cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=tf.nn.softmax(labels), logits=weights)
 	# cross_entropy = tf.reduce_mean(cross_entropy)
 	loss = tf.reduce_mean(loss)
@@ -65,8 +70,8 @@ def main():
 		# correct_prediction = tf.equal(tf.argmax(labels, 1), tf.argmax(weights, 1))
 		# correct_prediction = tf.cast(correct_prediction, tf.float32)
 		# value = tf.losses.log_loss(tf.nn.softmax(labels), weights)
-		value = calc_minus_log_rate_return(labels, weights)
-	value = tf.reduce_mean(value)
+		value = calc_portfolio_value_change(labels, weights)
+	value = tf.reduce_prod(value)
 	# accuracy = tf.reduce_mean(correct_prediction)
 
 	# Decide where the graph is stored
@@ -81,11 +86,15 @@ def main():
 	 	for i in range(num_training_steps):
 	 		batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins) 
 	 		if i % 1000 == 0:
-	 			train_value = value.eval(feed_dict={
+	 			print('input price',input_prices.eval(feed_dict={
+	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0}))
+	 			print('weights',weights.eval(feed_dict={
+	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0}))
+	 			train_loss = loss.eval(feed_dict={
 	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0})
-	 			print('step %d, training loss %g' % (i, train_value))
+	 			print('step %d, training loss %g' % (i, train_loss))
 	 		train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
-	 	print('test loss %g' % value.eval(feed_dict={
+	 	print('test value %g' % value.eval(feed_dict={
 	 		input_prices: test_data, labels: test_labels, keep_prob: 1.0}))
 
 	# # Create the estimator
@@ -110,7 +119,3 @@ def main():
 	# 	shuffle = False)
 	# eval_results = classifieriCNN.evaluate(input_fn=eval_input_fn)
 	# print(eval_results)
-
-
-
-

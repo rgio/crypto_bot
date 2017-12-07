@@ -5,11 +5,13 @@ from __future__ import print_function
 # Imports
 import numpy as np
 import csv
+import pdb
 
 global_price_array = []
 def read_data():
 	# if we have already calculated the global price array, read it from txt
 	try:
+		raise Exception('err')
 		global_price_array = np.genfromtxt('global_price')
 	except:
 		prices = {}
@@ -95,23 +97,38 @@ def read_data():
 		for key in prices.keys():
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
 
-		price_array = [[]]
+		high_price_array = [[]]
+		open_price_array = [[]]
+		volume_array = [[]]
 		for val in prices.values():
-			price_array.append([row[0].split(',')[1] for row in val][1:])
-		price_array = price_array[1:]
-		max_length = len(max(price_array, key = lambda x: len(x)))
+			high_price_array.append([row[0].split(',')[1] for row in val][1:])
+			open_price_array.append([row[0].split(',')[3] for row in val][1:])
+			volume_array.append([row[0].split(',')[5] for row in val][1:])
+		high_price_array = high_price_array[1:]
+		open_price_array = open_price_array[1:]
+		volume_array = volume_array[1:]
+		max_length = len(max(high_price_array, key = lambda x: len(x)))
 
-		for coin_prices in price_array:
+		for coin_prices in high_price_array:
 			while(len(coin_prices)<max_length):
 				coin_prices.insert(0, coin_prices[0])
+		for coin_prices in open_price_array:
+			while(len(coin_prices)<max_length):
+				coin_prices.insert(0, coin_prices[0])
+		for coin_volumes in volume_array:
+			while(len(coin_volumes)<max_length):
+				coin_volumes.insert(0, coin_volumes[0])
 
-		global_price_array = np.array(price_array, dtype=np.float32)
+		global_volume_array = np.array(volume_array, dtype=np.float32)
+		global_high_price_array = np.array(high_price_array, dtype=np.float32)
+		global_open_price_array = np.array(open_price_array, dtype=np.float32)
 
 		# Insert row of ones for btc_btc ratio
 		# btc_btc = np.ones( (1,max_length), dtype=np.float32)
 		# global_price_array = np.insert(global_price_array, 0, btc_btc, axis=0)
-		
-		return global_price_array
+		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array],axis=2)
+
+		return input_array
 
 #TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -128,13 +145,18 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 		last = local[:,(window_size-1):window_size]
 		normalized = np.divide(local,last)
 		normalized[np.isnan(normalized)==True]=0.01
+		normalized[np.isinf(normalized)==True]=0.01
 		shift = global_price_array[:,start+1:stop+1]
 		a = shift[:,(window_size-1):window_size]
 		normalized_shift = np.divide(shift,a)
 		normalized_shift[np.isnan(normalized_shift)==True]=0.01
+		normalized_shift[np.isinf(normalized_shift)==True]=0.01
 		# price_change = np.divide(normalized_shift,normalized)
 		price_change = np.divide(shift, local)
 		price_change[np.isnan(price_change)==True]=0.01
+		price_change[np.isinf(price_change)==True]=0.01
+		price_change = price_change[:,:,0]#remove volume and open
+		#pdb.set_trace()
 		return normalized,price_change
 
 def get_data(array,window_size,stride):
@@ -146,6 +168,8 @@ def get_data(array,window_size,stride):
 		prices, pc = get_local_prices(window_size,stride,array,i)
 		train.append(prices)
 		price_changes.append(pc[:,window_size-1:window_size])
+	#pdb.set_trace()
+	#print(np.array(price_changes))
 	return np.array(train),np.array(price_changes)
 
 def get_next_price_batch(prices, price_changes, batch_size, num_coins):
@@ -155,6 +179,7 @@ def get_next_price_batch(prices, price_changes, batch_size, num_coins):
 	p_c = np.reshape(p_c, (batch_size, num_coins))
 	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
+	#pdb.set_trace()
 	return p, p_c
 
 

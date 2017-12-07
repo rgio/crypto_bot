@@ -5,6 +5,7 @@ from __future__ import print_function
 # Imports of general code
 import numpy as np
 import tensorflow as tf
+import pdb
 
 from tensorflow.contrib import learn
 
@@ -17,7 +18,7 @@ window_size = 50
 filterSize = [num_coins, 4]
 hiddenUnits = 500
 num_filters = 12
-num_input_channels = 1 # will become 3 (or more if volume taken into account)
+num_input_channels = 3 # will become 3 (or more if volume taken into account)
 num_conv1_features = 2
 num_conv2_features = 20
 num_fc1_neurons = 128
@@ -33,6 +34,10 @@ def bias_variable(shape):
 def conv2d(x, W):
 	return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID')
 
+def separable_conv2d(x, W, P):
+	return tf.nn.separable_conv2d(x, W, P, strides=[1, 1, 1, 1], padding='VALID')
+
+
 def new_cnn_model(x):
 	"""Low level model for a CNN."""
 
@@ -41,9 +46,11 @@ def new_cnn_model(x):
 
 	# First convolution layer
 	W_conv1 = weight_variable([1, 3, num_input_channels, num_conv1_features])
+	P_conv1 = weight_variable([1,1,num_conv1_features*num_input_channels,num_conv1_features])
 	b_conv1 = bias_variable([num_conv1_features])
-	h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
-
+	#h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
+	h_conv1 = tf.nn.relu(separable_conv2d(input_price, W_conv1, P_conv1) + b_conv1)
+	#pdb.set_trace()
 	# Second convolution layer
 	W_conv2 = weight_variable([1, window_size-2, num_conv1_features, num_conv2_features])
 	b_conv2 = bias_variable([num_conv2_features])
@@ -55,10 +62,13 @@ def new_cnn_model(x):
 	# h_conv2_weights = tf.concat([h_conv2, past_weights], 3)
 
 	# Flatten the 2nd convolution layer prior to the fully connected layers
-	h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_input_channels*num_conv2_features])
+	#h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_input_channels*num_conv2_features])
+	h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])
+
 
 	# First fully connected layer
-	W_fc1 = weight_variable([num_coins*num_input_channels*num_conv2_features, num_fc1_neurons])
+	#W_fc1 = weight_variable([num_coins*num_input_channels*num_conv2_features, num_fc1_neurons])
+	W_fc1 = weight_variable([num_coins*num_conv2_features, num_fc1_neurons])
 	b_fc1 = weight_variable([num_fc1_neurons])
 	h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
 
@@ -75,9 +85,13 @@ def new_cnn_model(x):
 	cash_bias = tf.Variable(0.0)
 	cash_bias_tensor = tf.fill([tf.shape(input_price)[0], 1], cash_bias)
 	h_fc2_cash = tf.concat([h_fc2, cash_bias_tensor], 1)
+
+	#pdb.set_trace()
 		
 	# Final portfolio weight tensor
 	weights = tf.nn.softmax(h_fc2_cash, name="output_tensor")
+
+	#lstm_cell = rnn.BasicLSTMCell(num_hidden, forget_bias=1.0)
 	# past_weights = tf.slice()
 
 	# return h_fc2_cash, keep_prob
