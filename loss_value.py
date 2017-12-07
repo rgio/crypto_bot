@@ -27,10 +27,6 @@ def calc_minus_log_rate_return(price_change, weights):
 
 def calc_portfolio_value_change(price_change, weights):
 	rate_return = tf.reduce_sum(tf.multiply(price_change, weights), axis=1)
-<<<<<<< HEAD
 	return rate_return
 
 
-=======
-	return rate_return
->>>>>>> 16c4f5987660bc70f5d4641e4442716819a35318

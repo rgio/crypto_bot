@@ -122,7 +122,7 @@ def read_data():
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
-		global_dp_dt_array = calc_dp_dt_array(global_high_array, 1.0)
+		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
 
 		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
@@ -165,7 +165,7 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 	if(stop<global_price_array.shape[1]):
 		local = global_price_array[:,start:stop]
 		last = local[:,(window_size-1):window_size]
-		normalized = np.divide(local,last)
+		normalized = np.divide(local,np.abs(last))
 		normalized[np.isnan(normalized)==True]=0.01
 		normalized[np.isinf(normalized)==True]=0.01
 		shift = global_price_array[:,start+1:stop+1]

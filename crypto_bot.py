@@ -26,11 +26,10 @@ transaction_cost = 0.0025 # 0.25% commission fee for each transaction
 price_batch_size = 200
 num_training_steps = 30000
 num_coins = 11
-num_input_channels = 3 # high,open, volume
+num_input_channels = 4 # high,open, volume, dp/dt
 
 def main():
 	# Load training and eval data
-<<<<<<< HEAD
 	input_array = read_data()
 	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
@@ -70,9 +69,7 @@ def main():
 	with tf.name_scope('value'):
 		value = calc_portfolio_value_change(labels, weights)
 	value = tf.reduce_prod(value)
-	# accuracy = tf.reduce_mean(correct_prediction)
 
-	# Decide where the graph is stored
 
 
 	# Decide where the graph and model is stored
@@ -88,14 +85,14 @@ def main():
 		for i in range(num_training_steps):
 			batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i) 
 			if i % 1000 == 0:
-				train_value = final_value.eval(feed_dict={
+				train_value = value.eval(feed_dict={
 	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0})
 				print('step %d, train_value %g' % (i, train_value))
 	 			#print(train_value)
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
-		print('size of validation %d - validation portolio value multiplier %g' % (validation_size, final_value.eval(feed_dict={
+		print('size of validation %d - validation portolio value multiplier %g' % (validation_size, value.eval(feed_dict={
 	 		input_prices: validation_data, labels: validation_labels, keep_prob: 1.0})))
-		print('size of test %d - test portolio value multiplier %g' % (test_size, final_value.eval(feed_dict={
+		print('size of test %d - test portolio value multiplier %g' % (test_size, value.eval(feed_dict={
 	 		input_prices: test_data, labels: test_labels, keep_prob: 1.0})))
 		save_path = saver.save(sess, "/tmp/crypto_bot_test/cnn_model.ckpt")
 		print("Model saved in file: %s" % save_path)
