@@ -21,7 +21,10 @@ import pandas as pd
 import cPickle
 from twitter_api import integerizeCorpus
 
-
+embeddingsFileName = "word2vecEmbeddings.p"
+dictFileName = "word2vecDict.p"
+reverseDictFileName = "reverseWord2vecDict.p"
+tweetsFileName = "tweets.p"
 numTweets = 90
 int_corpus,corpus,tweets = integerizeCorpus(numTweets)
 #data,labels = getData(int_corpus,tweets)
@@ -206,7 +209,6 @@ with tf.Session(graph=graph) as session:
           log_str = '%s %s,' % (log_str, close_word)
         print(log_str)
   final_embeddings = normalized_embeddings.eval()
-  cPickle.dump(final_embeddings, open(embeddingsFileName, 'w'))
 
 
 # Step 6: Visualize the embeddings.
@@ -243,6 +245,11 @@ try:
   plot_with_labels(low_dim_embs, labels, os.path.join(gettempdir(), 'tsne.png'))
   df = pd.DataFrame(final_embeddings)
   df.to_csv("embeddings.csv")
+  cPickle.dump(final_embeddings, open(embeddingsFileName, 'w'))
+  cPickle.dump(dictionary, open(dictFileName, 'w'))
+  cPickle.dump(reverse_dictionary, open(reverseDictFileName, 'w'))
+  cPickle.dump(tweets,open(tweetsFileName, 'w'))
+
 
 except ImportError as ex:
   print('Please install sklearn, matplotlib, and scipy to show embeddings.')
