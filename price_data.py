@@ -28,7 +28,7 @@ def read_data():
 				btc_ltc.append(row)
 			prices['BTC_LTC']=btc_ltc
 		# with open('data/BTC_XRP.csv', 'r') as file:
-		with open('data/test/btc_ltc_test.csv', 'r') as file:
+		with open('data/test/btc_xrp_test.csv', 'r') as file:
 			reader = csv.reader(file, delimiter = ' ', quotechar='|')
 			btc_xrp = []
 			for row in reader:
@@ -96,9 +96,12 @@ def read_data():
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
 
 		price_array = [[]]
+		volume_array = [[]]
 		for val in prices.values():
 			price_array.append([row[0].split(',')[1] for row in val][1:])
+			volume_array.append([row[0].split(',')[5] for row in val][1:])
 		price_array = price_array[1:]
+		volume_array = volume_array[1:]
 		max_length = len(max(price_array, key = lambda x: len(x)))
 
 		for coin_prices in price_array:
@@ -106,12 +109,40 @@ def read_data():
 				coin_prices.insert(0, coin_prices[0])
 
 		global_price_array = np.array(price_array, dtype=np.float32)
+		global_volume_array = np.array(volume_array, dtype=np.float32)
 
-		# Insert row of ones for btc_btc ratio
-		# btc_btc = np.ones( (1,max_length), dtype=np.float32)
-		# global_price_array = np.insert(global_price_array, 0, btc_btc, axis=0)
-		
-		return global_price_array
+		global_dp_dt_array = calc_dp_dt_array(global_price_array, 1.0)
+
+		return global_price_array, global_volume_array, global_dp_dt_array
+
+def calc_dp_dt_array(p, h):
+	dp_dt_array = np.zeros(p.shape, dtype=np.float32)
+	# loop over num_coins
+	for i in range(p.shape[0]): 
+		# loop over all time steps
+		for j in range(p.shape[1]): 
+			if j == 0: 
+				# 1st order forward finite difference method
+				dp_dt_array[i,j] = p[i,j+1]-p[i,j]
+			elif j == p.shape[1]-1: 
+				# 1st order backward finite difference method
+				dp_dt_array[i,j] = p[i,j]-p[i,j-1]
+			elif (j == 1 or j == p.shape[1]-2): 
+				# 2nd order finite difference method
+				dp_dt_array[i,j] = (p[i,j+1]-p[i,j-1]) / 2.0
+			else: 
+				# a 4th order finite difference method
+				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
+	dp_dt_array = np.divide(dp_dt_array, h)
+	return dp_dt_array
+
+def append_input_data(p, v, dp_dt):
+	p = np.reshape(p, (p.shape[0], p.shape[1], 1))
+	v = np.reshape(p, (v.shape[0], v.shape[1], 1))
+	dp_dt = np.reshape(p, (v.shape[0], v.shape[1], 1))
+	multichannel_input = np.append(p, v, axis=2)
+	multichannel_input = np.append(multichannel_input, dp_dt, axis=2)
+	return multichannel_input
 
 #TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -127,14 +158,14 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 		local = global_price_array[:,start:stop]
 		last = local[:,(window_size-1):window_size]
 		normalized = np.divide(local,last)
-		normalized[np.isnan(normalized)==True]=0.01
+		normalized[np.isnan(normalized)==True]=0.00
 		shift = global_price_array[:,start+1:stop+1]
 		a = shift[:,(window_size-1):window_size]
 		normalized_shift = np.divide(shift,a)
 		normalized_shift[np.isnan(normalized_shift)==True]=0.01
 		# price_change = np.divide(normalized_shift,normalized)
 		price_change = np.divide(shift, local)
-		price_change[np.isnan(price_change)==True]=0.01
+		price_change[np.isnan(price_change)==True]=0.00
 		return normalized,price_change
 
 def get_data(array,window_size,stride):
@@ -148,15 +179,14 @@ def get_data(array,window_size,stride):
 		price_changes.append(pc[:,window_size-1:window_size])
 	return np.array(train),np.array(price_changes)
 
-def get_next_price_batch(prices, price_changes, batch_size, num_coins):
-	start_index = np.random.random_integers(0, prices.shape[0]-batch_size)
+def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_step):
+	start_index = training_step % (prices.shape[0]-batch_size)
 	p = prices[start_index:start_index+batch_size,:,:]
 	p_c = price_changes[start_index:start_index+batch_size,:,:]
 	p_c = np.reshape(p_c, (batch_size, num_coins))
 	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	return p, p_c
-
 
 
 
