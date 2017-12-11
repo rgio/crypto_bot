@@ -24,7 +24,7 @@ window_size = 50
 stride = 1
 transaction_cost = 0.0025 # 0.25% commission fee for each transaction
 price_batch_size = 200
-num_training_steps = 25000
+num_training_steps = 100000
 num_coins = 11
 num_input_channels = 4 # high,open, volume, dp/dt
 
