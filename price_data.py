@@ -122,14 +122,14 @@ def read_data(directory='data/test/'):
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
-		#global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
+		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
 
-		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array],axis=2)
+		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
 
 		return input_array
 
-"""
+
 def calc_dp_dt_array(p, h):
 	dp_dt_array = np.zeros(p.shape, dtype=np.float32)
 	# loop over num_coins
@@ -150,7 +150,7 @@ def calc_dp_dt_array(p, h):
 				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
 	dp_dt_array = np.divide(dp_dt_array, h)
 	return dp_dt_array
-"""
+
 
 #TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -179,7 +179,7 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 		price_change[np.isinf(price_change)==True]=0.01
 		price_change = price_change[:,:,0]#remove volume and open
 
-		high_prices = normalized[:,:,0]
+		"""high_prices = normalized[:,:,0]
 		dp_dt_array = np.zeros(high_prices.shape)
 		for j in range(high_prices.shape[1]):
 			if j == 0:
@@ -195,7 +195,7 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 		dp_dt_normalized[np.isnan(dp_dt_normalized)==True]=0.01
 		dp_dt_normalized[np.isinf(dp_dt_normalized)==True]=0.01
 
-		normalized = np.stack([normalized[:,:,0],normalized[:,:,1],normalized[:,:,2],dp_dt_normalized],axis=2)
+		normalized = np.stack([normalized[:,:,0],normalized[:,:,1],normalized[:,:,2],dp_dt_normalized],axis=2)"""
 
 		#pdb.set_trace()
 		return normalized,price_change
