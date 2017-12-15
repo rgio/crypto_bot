@@ -24,13 +24,14 @@ window_size = 50
 stride = 1
 transaction_cost = 0.0025 # 0.25% commission fee for each transaction
 price_batch_size = 200
-num_training_steps = 100000
+num_training_steps = 50000
 num_coins = 11
 num_input_channels = 4 # high,open, volume, dp/dt
 
 def main():
 	# Load training and eval data
 	input_array = read_data()
+	pdb.set_trace()
 	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
 	validation_size = int(total_time_steps*0.15)
