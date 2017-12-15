@@ -126,8 +126,15 @@ def read_data(directory='data/test/'):
 
 
 		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
+		#pdb.set_trace()
 
-		return input_array
+		sampled_array = np.zeros( (input_array.shape[0],int(input_array.shape[1]/6+1),input_array.shape[2]) )
+		for i in range(input_array.shape[1]):
+			if i%6==0:
+				sampled_array[:,int(i/6),:]=input_array[:,i,:]
+		#pdb.set_trace()
+		#return input_array
+		return sampled_array
 
 
 def calc_dp_dt_array(p, h):
