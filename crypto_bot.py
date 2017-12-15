@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 # Imports of general code
+import datetime
 import tempfile
 import numpy as np
 import tensorflow as tf
@@ -14,6 +15,7 @@ from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_f
 from price_data import *
 from cnn import *
 from loss_value import *
+from print_results import *
 import pdb
 
 # Set up logging
@@ -60,27 +62,29 @@ def main():
 	#input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size])
 	input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size, num_input_channels])
 	labels = tf.placeholder(tf.float32, [None, num_coins+1])
+	init_weights = tf.placeholder(tf.float32, [None, num_coins+1])
 
 	# Build the graph
-	weights, keep_prob = new_cnn_model(input_prices)
-
-	#pdb.set_trace()
+	weights, keep_prob = new_cnn_model(input_prices, init_weights)
 
 	# Define the loss
 	with tf.name_scope('loss'):
-		loss = calc_minus_log_rate_return(labels, weights)
+		loss = calc_minus_log_rate_return(labels, weights, init_weights)
 	loss = tf.reduce_mean(loss)
 
 	# Define the optimizer
 	with tf.name_scope('adam_optimizer'):
 		train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
 
+	# Define the accuracy of the model
+	with tf.name_scope('accuracy'):
+		correct_prediction = tf.equal(tf.argmax(weights, axis=1), tf.argmax(labels, axis=1))
+		accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 	# Define the testing conditions
 	with tf.name_scope('value'):
-		value = calc_portfolio_value_change(labels, weights)
-	value = tf.reduce_prod(value)
-
-
+		value = calc_portfolio_value_change(labels, weights, init_weights)
+	final_value = tf.reduce_prod(value)
 
 	# Decide where the graph and model is stored
 	graph_location = tempfile.mkdtemp()
@@ -88,17 +92,39 @@ def main():
 	train_writer = tf.summary.FileWriter(graph_location)
 	train_writer.add_graph(tf.get_default_graph())
 	saver = tf.train.Saver()
+	timestamp = '{:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
+	path_to_model_dir = '/tmp/crypto_bot/cnn_model_' + timestamp + '/'
+	path_to_model = path_to_model_dir + 'cnn_model.ckpt'
+
+	# Random weights for 1st training step
+	random_weights = np.random.rand(price_batch_size, num_coins+1)
 
 	# Run the training and testing
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
-		for i in range(num_training_steps):
-			batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i) 
+		batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, 0)
+		input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
+				init_weights: random_weights, keep_prob: 1.0}) 
+		for i in range(1,num_training_steps):
+			batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i)
+			input_weights_batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i-1)
+			input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1], 
+				init_weights: input_weights, keep_prob: 1.0}) 
 			if i % 1000 == 0:
-				train_value = value.eval(feed_dict={
-	 				input_prices: batch[0], labels: batch[1], keep_prob: 1.0})
-				print('step %d, train_value %g' % (i, train_value))
+				train_value = final_value.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
+					init_weights: input_weights, keep_prob: 1.0})
+				train_accuracy = accuracy.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
+					init_weights: input_weights, keep_prob: 1.0})
+				print('step %d, train_accuracy %g, train_value %g' % (i, train_accuracy, train_value))
 	 			#print(train_value)
+<<<<<<< HEAD
+			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], 
+				init_weights: input_weights, keep_prob: 0.5})
+
+
+		# Save the results
+		save_path = saver.save(sess, path_to_model)
+=======
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
 		print('size of validation %d - validation portolio value multiplier %g' % (validation_size, value.eval(feed_dict={
 	 		input_prices: validation_data, labels: validation_labels, keep_prob: 1.0})))
@@ -107,7 +133,30 @@ def main():
 		print('size of realtime test %d - last week portolio value multiplier %g' % (realtime_size, value.eval(feed_dict={
 	 		input_prices: realtime_test, labels: realtime_test_labels, keep_prob: 1.0})))
 		save_path = saver.save(sess, "/tmp/crypto_bot_test/cnn_model.ckpt")
+>>>>>>> ac4de6cfe95c2744268f050130ba8076868b866e
 		print("Model saved in file: %s" % save_path)
+
+		# Print the results
+		# input_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels, 
+		# 		init_weights: random_weights, keep_prob: 1.0})
+		print('The accuracy on the validation set is %g' % accuracy.eval(feed_dict={input_prices: validation_data, 
+			labels: validation_labels, keep_prob: 1.0}))
+		# final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels, 
+		# 	init_weights = , keep_prob: 1.0})
+		pvm = value.eval(feed_dict={input_prices: validation_data, labels: validation_labels, 
+			keep_prob: 1.0})
+		portfolio_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels, 
+			keep_prob: 1.0})
+		print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir)
+		print('The accuracy on the test set is %g' % accuracy.eval(feed_dict={input_prices: test_data, 
+			labels: test_labels, keep_prob: 1.0}))
+		final_pvm = final_value.eval(feed_dict={input_prices: test_data, labels: test_labels, 
+			keep_prob: 1.0})
+		pvm = value.eval(feed_dict={input_prices: test_data, labels: test_labels, keep_prob: 1.0})
+		portfolio_weights = weights.eval(feed_dict={input_prices: test_data, labels: test_labels, 
+			keep_prob: 1.0})
+		np.savetxt('test_labels.dat', test_labels, fmt='%.8f', delimiter=' ')
+		print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir)
 
 
 	# # Create the estimator

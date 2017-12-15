@@ -35,7 +35,7 @@ def separable_conv2d(x, W, P):
 	return tf.nn.separable_conv2d(x, W, P, strides=[1, 1, 1, 1], padding='VALID')
 
 
-def new_cnn_model(x):
+def new_cnn_model(x, init_weights):
 	"""Low level model for a CNN."""
 
 	# Reshape the input to use as our first feature layer
@@ -57,22 +57,20 @@ def new_cnn_model(x):
 		b_conv2 = bias_variable([num_conv2_features])
 		h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 	
-	# TODO: concate  weights from previous step to conv_2 (or maybe conv2_flat)
 	# Add in previous weights as a feature
-	# past_weights = tf.fill([tf.shape(input_price)[0], num_coins, 1, 1], 1.0/num_coins)
-	# h_conv2_weights = tf.concat([h_conv2, past_weights], 3)
+	past_weights = tf.reshape(init_weights[:,1:], [-1, num_coins, 1, 1])
+	h_conv2_weights = tf.concat([h_conv2, past_weights], axis=3)
 
-	# Flatten the 2nd convolution layer prior to the fully connected layers
-	#h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_input_channels*num_conv2_features])
-	h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])
-
+	## Flatten the 2nd convolution layer prior to the fully connected layers
+	h_conv2_flat = tf.reshape(h_conv2_weights, [-1, num_coins*(num_conv2_features+1)])
+	#h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])
+	h_conv2_flat.get_shape()
 
 	# First fully connected layer
 	with tf.name_scope('fc1'):
-		W_fc1 = weight_variable([num_coins*num_conv2_features, num_fc1_neurons])
+		W_fc1 = weight_variable([num_coins*(num_conv2_features+1), num_fc1_neurons])
 		b_fc1 = weight_variable([num_fc1_neurons])
-		# Flatten the 2nd convolution layer prior to the fully connected layers
-		h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])	
+		# Flatten the 2nd convolution layer prior to the fully connected layers	
 		h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
 
 	# Dropout on first connected layer during training
@@ -85,7 +83,6 @@ def new_cnn_model(x):
 		W_fc2 = weight_variable([num_fc1_neurons, num_coins])
 		b_fc2 = bias_variable([num_coins])
 		h_fc2 = tf.nn.relu(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-	
 
 	# Add in a bias for cash
 	with tf.name_scope('cash'): 
@@ -96,7 +93,6 @@ def new_cnn_model(x):
 	# Final portfolio weight tensor
 	with tf.name_scope('weights'):
 		weights = tf.nn.softmax(h_fc2_cash, name="output_tensor")
-	# past_weights = tf.slice()
 
 	return weights, keep_prob
 
