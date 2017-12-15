@@ -6,6 +6,8 @@ from __future__ import print_function
 import numpy as np
 import csv
 import pdb
+import time
+from poloniex_api import *
 
 global_price_array = []
 def read_data(directory='data/test/'):
@@ -93,6 +95,12 @@ def read_data(directory='data/test/'):
 				btc_zec.append(row)
 			prices['BTC_ZEC']=btc_zec
 
+
+
+
+
+
+
 		dates = []
 		for key in prices.keys():
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
@@ -119,6 +127,7 @@ def read_data(directory='data/test/'):
 			while(len(coin_volumes)<max_length):
 				coin_volumes.insert(0, coin_volumes[0])
 
+		#pdb.set_trace()
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
@@ -157,6 +166,15 @@ def calc_dp_dt_array(p, h):
 				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
 	dp_dt_array = np.divide(dp_dt_array, h)
 	return dp_dt_array
+
+def get_current_window():
+	t = time.time()
+	t0 = t-(100000)
+	fetch_data(start_time=t0)
+	array = read_data('live_data/')
+	window = array[:,-50,:]
+	#pdb.set_trace()
+	return window
 
 
 #TODO change to account for numepochs

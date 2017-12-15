@@ -14,12 +14,15 @@ secret = 'c65c99a9a94b034fc19569170308bc29c86eacc539fa5bf7b5d34714dce0c1ac4fd603
 
 FETCH_URL = "https://poloniex.com/public?command=returnChartData&currencyPair=%s&start=%d&end=%d&period=300"
 TICKER_URL = "https://poloniex.com/public?command=returnTicker"
-DATA_DIR = "realtime_data"
+DATA_DIR = "live_data"
 COLUMNS = ["date","high","low","open","close","volume","quoteVolume","weightedAverage"]
-COINS = {"BTS":0,"ZEC":1,"STRAT":2,"XEM":3,"STEEM":4,"LTC":5,"ETC":6,"XRP":7,"XMR":8,"DASH":9,"ETH":10}
+COINS_INDICES = {"BTS":0,"ZEC":1,"STRAT":2,"XEM":3,"STEEM":4,"LTC":5,"ETC":6,"XRP":7,"XMR":8,"DASH":9,"ETH":10}
 PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"]
+#PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
+#"BTC_BCH","BTC_STR","BTC_LSK"]
 PAIRS_DICT = {0:"BTC_BTS",1:"BTC_ZEC",2:"BTC_STRAT",3:"BTC_XEM",4:"BTC_STEEM",5:"BTC_LTC",6:"BTC_ETC",7:"BTC_XRP",8:"BTC_XMR",9:"BTC_DASH",10:"BTC_ETH"}
 PARAMS = ['high','open','volume']
+num_coins = 11
 
 polo = Poloniex()
 myCoach = Coach(timeFrame=1.0, callLimit=6)
@@ -29,14 +32,12 @@ polo.public = Poloniex(coach=myCoach)
 polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
 
 
-def get_new_portfolio(cur_portfolio,new_portfolio):
+def get_new_portfolio(new_portfolio):
     rates = get_current_rates()
     balances = get_balances()
-    portfolio_value = 0 # in BTC
-    bitcoin_price = rates['USDT_BTC']['last']#approximate value of BTC in $
+    portfolio_value = get_portfolio_value(rates,balances) # in BTC
+    cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
     threshold = 1.0 # minimum transaction value in USDT
-    for coin in balances:
-        portfolio_value += balances[coin]*rates['BTC_'+coin]['last']
     differences = new_portfolio-cur_portfolio
     differences = sorted(differences)
     #place sell orders first
@@ -61,6 +62,22 @@ def get_new_portfolio(cur_portfolio,new_portfolio):
             #buy if amount greater than threshold
             if(amount_usdt>threshold):
                 place_buy_order(curr_pair,curr_rate,amount_coin)
+    return portfolio_value
+
+def get_portfolio_value(rates,balances):
+    portfolio_value = 0
+    bitcoin_price = rates['USDT_BTC']['last']
+    for coin in balances:
+        portfolio_value+= balances[coin]*rates['BTC_'+coin]['last']
+    return portfolio_value
+
+def get_weights(rates,balances,portfolio_value):
+    weights = [0]*num_coins
+    for coin in balances:
+        rate = rates[coin]
+        coin_value = rate*balances[coin]
+        weights[COINS_INDICES[coin]]=coin_value/portfolio_value
+    return weights
 
  
 def place_sell_order(pair,rate,amount):
@@ -81,8 +98,7 @@ def get_balances():
         balances[coin]=float(b[coin])
     return balances
 
-def fetch_data(start_time=1512259200,end_time=9999999999):
-    path = DATA_DIR
+def fetch_data(start_time=1439010600,end_time=9999999999,path=DATA_DIR):
     for pair in PAIRS:
         datafile = os.path.join(path, pair+"_test"+".csv")
         timefile = os.path.join(path, pair+"_test")
@@ -92,14 +108,15 @@ def fetch_data(start_time=1512259200,end_time=9999999999):
             print("No data.")
         end_time = df["date"].iloc[-1]
         #pdb.set_trace()
-        ft = open(timefile,"w+")
+        ft = open(timefile,"w")
         ft.write("%d\n" % end_time)
         ft.close()
-        outf = open(datafile, "a")
+        outf = open(datafile, "w")
         df.to_csv(outf, index=False, columns=COLUMNS)
         outf.close()
         print("Finish.")
         #time.sleep(30)
+
 
 def get_data(pair):
     datafile = os.path.join(DATA_DIR, pair+".csv")
