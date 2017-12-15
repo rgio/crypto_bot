@@ -26,7 +26,7 @@ window_size = 50
 stride = 1
 transaction_cost = 0.0025 # 0.25% commission fee for each transaction
 price_batch_size = 200
-num_training_steps = 30000
+num_training_steps = 100000
 num_coins = 11
 num_input_channels = 4 # high,open, volume, dp/dt
 
@@ -47,6 +47,15 @@ def main():
 	test_labels = np.reshape(test_labels, (test_labels.shape[0], num_coins))
 	btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
 	test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
+
+	realtime_input = read_data('realtime_data/')
+	realtime_size = realtime_input.shape[1]
+	realtime_test,realtime_test_labels = get_data(realtime_input,window_size,stride)
+	realtime_test_labels = np.reshape(realtime_test_labels, (realtime_test_labels.shape[0], num_coins))
+	btc_btc = np.ones( (1, realtime_test_labels.shape[0]), dtype=np.float32)
+	realtime_test_labels = np.insert(realtime_test_labels, 0, btc_btc, axis=1)
+
+	#pdb.set_trace()
 
 	# Create the model
 	#input_prices = tf.placeholder(tf.float32, [None, num_coins, window_size])
@@ -107,12 +116,23 @@ def main():
 					init_weights: input_weights, keep_prob: 1.0})
 				print('step %d, train_accuracy %g, train_value %g' % (i, train_accuracy, train_value))
 	 			#print(train_value)
+<<<<<<< HEAD
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], 
 				init_weights: input_weights, keep_prob: 0.5})
 
 
 		# Save the results
 		save_path = saver.save(sess, path_to_model)
+=======
+			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], keep_prob: 0.5})
+		print('size of validation %d - validation portolio value multiplier %g' % (validation_size, value.eval(feed_dict={
+	 		input_prices: validation_data, labels: validation_labels, keep_prob: 1.0})))
+		print('size of test %d - test portolio value multiplier %g' % (test_size, value.eval(feed_dict={
+	 		input_prices: test_data, labels: test_labels, keep_prob: 1.0})))
+		print('size of realtime test %d - last week portolio value multiplier %g' % (realtime_size, value.eval(feed_dict={
+	 		input_prices: realtime_test, labels: realtime_test_labels, keep_prob: 1.0})))
+		save_path = saver.save(sess, "/tmp/crypto_bot_test/cnn_model.ckpt")
+>>>>>>> ac4de6cfe95c2744268f050130ba8076868b866e
 		print("Model saved in file: %s" % save_path)
 
 		# Print the results
