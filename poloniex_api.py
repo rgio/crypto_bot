@@ -1,5 +1,5 @@
 import urllib
-import urllib2
+# import urllib2
 import json
 import time
 import hmac,hashlib
@@ -7,7 +7,8 @@ import os
 import time
 import pandas as pd
 import pdb
-from poloniex import Poloniex, Coach
+from poloniex import Poloniex
+# from poloniex import Poloniex, Coach
 
 key = 'Z3FRTM17-3N17VQWH-L9W3PWMF-T4MC7JNW'
 secret = 'c65c99a9a94b034fc19569170308bc29c86eacc539fa5bf7b5d34714dce0c1ac4fd60309c710d0ddac7e8b6605e868ddaf557b9745442b50c30ad98d0c94be62'
@@ -25,12 +26,13 @@ PARAMS = ['high','open','volume']
 num_coins = 11
 
 polo = Poloniex()
-myCoach = Coach(timeFrame=1.0, callLimit=6)
+# myCoach = Coach(timeFrame=1.0, callLimit=6)
 polo.Key = key
 polo.Secret = secret
-polo.public = Poloniex(coach=myCoach)
-polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
-
+# polo.public = Poloniex(coach=myCoach)
+# polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
+polo.public = Poloniex()
+polo.private = Poloniex(polo.Key, polo.Secret)
 
 def get_new_portfolio(new_portfolio):
     rates = get_current_rates()
@@ -53,7 +55,7 @@ def get_new_portfolio(new_portfolio):
                 place_sell_order(curr_pair,curr_rate,amount_coin)
 
             #TODO make sell order
-    time.sleep(5)#wait for sell orders to process        
+    time.sleep(15)#wait for sell orders to process        
     for i in range(len(differences)):
         if differences[i] > 0:
             amount_btc = differences[i] * portfolio_value
