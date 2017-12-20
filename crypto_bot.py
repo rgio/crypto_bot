@@ -22,10 +22,11 @@ price_batch_size = 100
 num_training_steps = 400000
 num_coins = 11
 num_input_channels = 4 # high,open, volume, dp/dt
+data_dir = 'live_data/'
 
 def main():
 	# Load training and eval data
-	input_array = read_data()
+	input_array = read_data(data_dir)
 	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
 	validation_size = int(total_time_steps*0.15)
