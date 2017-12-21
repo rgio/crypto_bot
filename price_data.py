@@ -106,18 +106,24 @@ def read_data(directory='data/test/'):
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
 
 		high_price_array = [[]]
+		low_price_array = [[]]
 		open_price_array = [[]]
 		volume_array = [[]]
 		for key in prices.keys():
 			high_price_array.append([row[0].split(',')[1] for row in prices[key]][1:])
+			low_price_array.append([row[0].split(',')[2] for row in prices[key]][1:])
 			open_price_array.append([row[0].split(',')[3] for row in prices[key]][1:])
 			volume_array.append([row[0].split(',')[5] for row in prices[key]][1:])
 		high_price_array = high_price_array[1:]
+		low_price_array = low_price_array[1:]
 		open_price_array = open_price_array[1:]
 		volume_array = volume_array[1:]
 		max_length = len(max(high_price_array, key = lambda x: len(x)))
 
 		for coin_prices in high_price_array:
+			while(len(coin_prices)<max_length):
+				coin_prices.insert(0, coin_prices[0])
+		for coin_prices in low_price_array:
 			while(len(coin_prices)<max_length):
 				coin_prices.insert(0, coin_prices[0])
 		for coin_prices in open_price_array:
@@ -130,6 +136,7 @@ def read_data(directory='data/test/'):
 		#pdb.set_trace()
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
+		global_high_price_array = np.array(low_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
 		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
