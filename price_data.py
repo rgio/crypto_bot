@@ -136,17 +136,22 @@ def read_data(directory='data/test/'):
 		#pdb.set_trace()
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
-		global_high_price_array = np.array(low_price_array, dtype=np.float32)
+		global_low_price_array = np.array(low_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
 		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
 
-		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
+		input_array = np.stack([global_high_price_array,global_low_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
 		#pdb.set_trace()
 
 		sampled_array = np.zeros( (input_array.shape[0],int(input_array.shape[1]/6+1),input_array.shape[2]) )
 		for i in range(input_array.shape[1]):
 			if i%6==0:
+				local = input_array[:,i:i+6,:]
+				#lows = np.array([min(row) for row in local[:,:,1]])
+				#highs = np.array([max(row) for row in local[:,:,0]])
+				#volume = np.array([sum(row) for row in local[:,:,3]])
+				#pdb.set_trace()
 				sampled_array[:,int(i/6),:]=input_array[:,i,:]
 		#pdb.set_trace()
 		#return input_array
