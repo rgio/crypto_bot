@@ -19,7 +19,7 @@ import pdb
 window_size = 50
 stride = 1
 price_batch_size = 100
-num_training_steps = 400000
+num_training_steps = 500000
 num_coins = 11
 num_input_channels = 5 # high,open, volume, dp/dt
 data_dir = 'live_data/'

@@ -148,11 +148,16 @@ def read_data(directory='data/test/'):
 		for i in range(input_array.shape[1]):
 			if i%6==0:
 				local = input_array[:,i:i+6,:]
-				#lows = np.array([min(row) for row in local[:,:,1]])
-				#highs = np.array([max(row) for row in local[:,:,0]])
-				#volume = np.array([sum(row) for row in local[:,:,3]])
+				lows = np.array([min(row) for row in local[:,:,1]])
+				highs = np.array([max(row) for row in local[:,:,0]])
+				volume = np.array([sum(row) for row in local[:,:,3]])
+				sampled_array[:,int(i/6),0]= highs
+				sampled_array[:,int(i/6),1]= lows
+				sampled_array[:,int(i/6),2]= input_array[:,i,2]
+				sampled_array[:,int(i/6),3]= volume
+				sampled_array[:,int(i/6),4]= input_array[:,i,4]
 				#pdb.set_trace()
-				sampled_array[:,int(i/6),:]=input_array[:,i,:]
+				#sampled_array[:,int(i/6),:]=input_array[:,i,:]
 		#pdb.set_trace()
 		#return input_array
 		return sampled_array
