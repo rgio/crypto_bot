@@ -143,5 +143,5 @@ def main():
 		np.savetxt('test_labels.dat', test_labels, fmt='%.8f', delimiter=' ')
 		print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir)
 
-
-
+if __name__=='__main__':
+    main()
