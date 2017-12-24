@@ -5,6 +5,7 @@ from __future__ import print_function
 # Imports
 import numpy as np
 import csv
+import ipdb
 import pdb
 import time
 from poloniex_api import *
