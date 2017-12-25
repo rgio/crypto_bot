@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 # Imports of general code
+import os
 import datetime
 import tempfile
 import numpy as np
@@ -81,14 +82,17 @@ def main():
 	final_value = tf.reduce_prod(value)
 
 	# Decide where the graph and model is stored
-	graph_location = tempfile.mkdtemp()
+	timestamp = '{:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
+	home_path = os.path.join(r'/tmp/crypto_bot', timestamp)
+	path_to_model_dir = os.path.join(home_path, 'cnn_model')
+	os.makedirs(path_to_model_dir)
+	path_to_model = os.path.join(path_to_model_dir, 'cnn_model.ckpt')	
+	graph_location = os.path.join(home_path, 'graph')
+	os.makedirs(graph_location)
 	print('Saving graph to %s' % graph_location)
 	train_writer = tf.summary.FileWriter(graph_location)
 	train_writer.add_graph(tf.get_default_graph())
 	saver = tf.train.Saver()
-	timestamp = '{:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
-	path_to_model_dir = '/tmp/crypto_bot/cnn_model_' + timestamp + '/'
-	path_to_model = path_to_model_dir + 'cnn_model.ckpt'
 
 	# Random weights for 1st training step
 	random_weights = np.random.rand(price_batch_size, num_coins+1)
