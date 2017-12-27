@@ -5,101 +5,26 @@ from __future__ import print_function
 # Imports
 import numpy as np
 import csv
+import ipdb
 import pdb
 import time
 from poloniex_api import *
 
 global_price_array = []
-def read_data(directory='data/test/'):
+def read_data(coin_list, directory='data/test/'):
 	# if we have already calculated the global price array, read it from txt
 	try:
 		raise Exception('err')
 		global_price_array = np.genfromtxt('global_price')
 	except:
 		prices = {}
-		# with open('data/BTC_ETH.csv', 'r') as file:
-		with open(directory+'btc_eth_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter=' ', quotechar='|')
-			btc_eth = []
-			for row in reader:
-				btc_eth.append(row)
-			prices['BTC_ETH']=btc_eth
-		# with open('data/BTC_LTC.csv', 'r') as file:
-		with open(directory+'btc_ltc_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_ltc = []
-			for row in reader:
-				btc_ltc.append(row)
-			prices['BTC_LTC']=btc_ltc
-		# with open('data/BTC_XRP.csv', 'r') as file:
-		with open(directory+'btc_xrp_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xrp = []
-			for row in reader:
-				btc_xrp.append(row)
-			prices['BTC_XRP']=btc_xrp
-		# with open('data/BTC_ETC.csv', 'r') as file:
-		with open(directory+'btc_etc_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_etc = []
-			for row in reader:
-				btc_etc.append(row)
-			prices['BTC_ETC']=btc_etc
-		# with open('data/BTC_XEM.csv', 'r') as file:
-		with open(directory+'btc_xem_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xem = []
-			for row in reader:
-				btc_xem.append(row)
-			prices['BTC_XEM']=btc_xem
-		# with open('data/BTC_DASH.csv', 'r') as file:
-		with open(directory+'btc_dash_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_dash = []
-			for row in reader:
-				btc_dash.append(row)
-			prices['BTC_DASH']=btc_dash
-		# with open('data/BTC_STEEM.csv', 'r') as file:
-		with open(directory+'btc_steem_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_steem = []
-			for row in reader:
-				btc_steem.append(row)
-			prices['BTC_STEEM']=btc_steem
-		# with open('data/BTC_BTS.csv', 'r') as file:
-		with open(directory+'btc_bts_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_bts = []
-			for row in reader:
-				btc_bts.append(row)
-			prices['BTC_BTS']=btc_bts
-		# with open('data/BTC_STRAT.csv', 'r') as file:
-		with open(directory+'btc_strat_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_strat = []
-			for row in reader:
-				btc_strat.append(row)
-			prices['BTC_STRAT']=btc_strat
-		# with open('data/BTC_XMR.csv', 'r') as file:
-		with open(directory+'btc_xmr_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xmr = []
-			for row in reader:
-				btc_xmr.append(row)
-			prices['BTC_XMR']=btc_xmr
-		# with open('data/BTC_ZEC.csv','r') as file:
-		with open(directory+'btc_zec_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_zec = []
-			for row in reader:
-				btc_zec.append(row)
-			prices['BTC_ZEC']=btc_zec
-
-
-
-
-
-
+        	for coin in coin_list:
+			with open(directory+'btc_{}_test.csv'.format(coin), 'r') as file:
+				reader = csv.reader(file, delimiter=' ', quotechar='|')
+				btc_coin = []
+				for row in reader:
+					btc_coin.append(row)
+				prices['BTC_{}'.format(coin.upper())]=btc_coin
 
 		dates = []
 		for key in prices.keys():
@@ -181,6 +106,7 @@ def calc_dp_dt_array(p, h):
 			else: 
 				# a 4th order finite difference method
 				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
+	#pdb.set_trace()
 	dp_dt_array = np.divide(dp_dt_array, h)
 	return dp_dt_array
 
@@ -264,10 +190,3 @@ def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	#pdb.set_trace()
 	return p, p_c
-
-
-
-
-
-
-
