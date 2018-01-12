@@ -15,10 +15,10 @@ window_size = 50
 filterSize = [num_coins, 4]
 hiddenUnits = 500
 num_filters = 12
-num_input_channels = 4 # will become 3 (or more if volume taken into account)
-num_conv1_features = 8
-num_conv2_features = 20
-num_fc1_neurons = 56
+num_input_channels = 4 
+num_conv1_features = 32
+num_conv2_features = 64
+num_fc1_neurons = 16
 
 print('num_conv1_features %d\nnum_conv2_features %d\nnum_fc1_neurons %d'
 		% (num_conv1_features, num_conv2_features, num_fc1_neurons))

@@ -9,6 +9,10 @@ import pdb
 import time
 from poloniex_api import *
 
+# Hyperparameter
+# currently inside get_batch_index_geometric as it depends on size of training data
+# beta = 0.00005 # time series sample bias in online stochastic batch learning
+
 global_price_array = []
 def read_data(directory='data/test/'):
 	# if we have already calculated the global price array, read it from txt
@@ -197,7 +201,7 @@ def calc_optimal_portfolio(price_change, prefix):
 	np.savetxt(prefix + '_optimal_portfolio_return.out', optimal_return, fmt='%.8f')
 	np.savetxt(prefix + '_optimal_portfolio.out', optimal_portfolio, fmt='%.1f', delimiter=' ')
 	print('')
-	print('Total %s trading period = %d steps and % .2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
+	print('Total %s trading period = %d steps and %.2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
 	print('The optimal portfolio value with no transaction costs = ', opt_portfolio_value)
 	calc_uniform_portfolio(price_change)
 	return optimal_portfolio, opt_portfolio_value
@@ -272,19 +276,32 @@ def get_data(array,window_size,stride):
 	#print(np.array(price_changes))
 	return np.array(train),np.array(price_changes)
 
-def calc_next_batch_index(t, sample_bias, window_size):
-	P_beta = sample_bias * (1.0 - sample_bias)**(t - test_time - window_size)
-	# batch_index = 
+def get_random_batch_index_geometric(max_index):
+	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
+	p = 10.0/max_index	# Make p larger to favor more recent data 
+	k = np.random.geometric(p)
+	while k > max_index:
+		k = np.random.geometric(p)
+	start_index = max_index - k
+	return start_index 
+
+def get_random_batch_index_uniform(max_index):
+	# Stochastic sampling of uniform distribution
+	start_index = np.random.random_integers(0, max_index)
+	return start_index
 
 def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_step):
-	start_index = training_step % (prices.shape[0]-batch_size)
+	start_index = get_random_batch_index_geometric(prices.shape[0]-batch_size)
+	# start_index = get_random_batch_index_uniform(prices.shape[0]-batch_size)
+	# Systematic uniform sampling of data
+	# start_index = training_step % (prices.shape[0]-batch_size)
 	p = prices[start_index:start_index+batch_size,:,:]
 	p_c = price_changes[start_index:start_index+batch_size,:,:]
 	p_c = np.reshape(p_c, (batch_size, num_coins))
 	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	#pdb.set_trace()
-	return p, p_c
+	return p, p_c, start_index
 
 
 

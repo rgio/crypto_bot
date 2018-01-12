@@ -18,10 +18,10 @@ import pdb
 # Model hyperparameters
 window_size = 50
 stride = 1
-price_batch_size = 50
-num_training_steps = 600000
+price_batch_size = 100
+num_training_steps = 200000
 num_coins = 11
-num_input_channels = 4 # high,open, volume, dp/dt
+num_input_channels = 4 # high,open,volume,dp/dt
 
 print('price_batch_size %d\nnum_training_steps %d\n' % (price_batch_size, num_training_steps))
 
@@ -38,12 +38,12 @@ def main():
 	validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], num_coins))
 	btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
 	validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
-	opt_val_portfolio, opt_val_port_return = calc_optimal_portfolio(validation_labels, 'validation')
+	opt_val_portfolio, opt_val_port_return = calc_optimal_portfolio(validation_labels, 'tmp/validation')
 	test_data, test_labels = get_data(test, window_size, stride)
 	test_labels = np.reshape(test_labels, (test_labels.shape[0], num_coins))
 	btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
 	test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
-	opt_test_portfolio, opt_test_port_return = calc_optimal_portfolio(test_labels, 'test')
+	opt_test_portfolio, opt_test_port_return = calc_optimal_portfolio(test_labels, 'tmp/test')
 
 	# realtime_input = read_data('realtime_data/')
 	# realtime_size = realtime_input.shape[1]
@@ -68,7 +68,7 @@ def main():
 
 	# Define the optimizer
 	with tf.name_scope('adam_optimizer'):
-		train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
+		train_step = tf.train.AdamOptimizer(1e-5).minimize(loss)
 
 	# Define the accuracy of the model
 	with tf.name_scope('accuracy'):
@@ -106,12 +106,12 @@ def main():
 			input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1], 
 				init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0}) 
 			if i % 1000 == 0:
-				calc_optimal_portfolio(batch[1], 'train')
+				calc_optimal_portfolio(batch[1], 'tmp/train')
 				train_value = final_value.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
 					init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0})
 				train_accuracy = accuracy.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
 					init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0})
-				print('Step = %d\nTrain_accuracy = %g\nTrain_value = %g' % (i, train_accuracy, train_value))
+				print('Step = %d\nBatch = %d\nTrain_accuracy = %g\nTrain_value = %g' % (i, batch[2], train_accuracy, train_value))
 			if i % 20000 == 0:
 				val_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 						init_weights: val_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
@@ -158,27 +158,20 @@ def main():
 		print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
 
 		# Proper validation test
-		validation_weights = np.zeros((1, validation_labels.shape[1]))
-		validation_weights[0,0]  = 1.0
-		v = np.ones((validation_labels.shape[0]))
-		portfolio_value = 1.0
-		for i in range(0, validation_labels.shape[0]):
-			v_labels = np.reshape(validation_labels[i,:], (1, validation_labels.shape[1]))
-			v_data = np.reshape(validation_data[i,:], (1, validation_data.shape[1], validation_data.shape[2], validation_data.shape[3]))
-			v[i] = final_value.eval(feed_dict={input_prices: v_data, labels: v_labels, 
-		 				init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
-			portfolio_value = portfolio_value*v[i]
-			validation_weights = weights.eval(feed_dict={input_prices: v_data, labels: v_labels, 
-		 		init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
-		np.savetxt('validation_returns.out', v, fmt='%.8f', delimiter=' ')
-		print('The final validation set value multiplier is %.8f' % portfolio_value)
-
-
-
-
-
-
-
+		#validation_weights = np.zeros((1, validation_labels.shape[1]))
+		#validation_weights[0,0]  = 1.0
+		#v = np.ones((validation_labels.shape[0]))
+		#portfolio_value = 1.0
+		#for i in range(0, validation_labels.shape[0]):
+		#	v_labels = np.reshape(validation_labels[i,:], (1, validation_labels.shape[1]))
+		#	v_data = np.reshape(validation_data[i,:], (1, validation_data.shape[1], validation_data.shape[2], validation_data.shape[3]))
+		#	v[i] = final_value.eval(feed_dict={input_prices: v_data, labels: v_labels, 
+		 #				init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
+		#	portfolio_value = portfolio_value*v[i]
+		#	validation_weights = weights.eval(feed_dict={input_prices: v_data, labels: v_labels, 
+		 # 		init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
+		#np.savetxt('tmp/proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
+		#print('The final validation set value multiplier is %.8f' % portfolio_value)
 
 
 

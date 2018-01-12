@@ -13,9 +13,9 @@ transaction_cost = 0.0025 # 0.25% commission fee for each transaction
 # Functions related to calculating the portfolio value and loss functions
 
 def calc_minus_log_rate_return(price_change, weights, init_weights, batch_size):
-	rate_return = tf.reduce_sum(tf.multiply(price_change, weights), axis=1)
+	# rate_return = tf.reduce_sum(tf.multiply(price_change, weights), axis=1)
 	# rate_return = tf.reduce_sum(tf.multiply(tf.nn.softmax(price_change), weights), axis=1)
-	# rate_return = calc_portfolio_value_change(price_change, weights, init_weights, batch_size)
+	rate_return = calc_portfolio_value_change(price_change, weights, init_weights, batch_size)
 	log_rate_return = tf.log(rate_return)
 	portfolio_value = tf.reduce_mean(log_rate_return)
 	portfolio_value = tf.scalar_mul(-1.0, portfolio_value)
