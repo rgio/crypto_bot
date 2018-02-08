@@ -15,17 +15,20 @@ window_size = 50
 filterSize = [num_coins, 4]
 hiddenUnits = 500
 num_filters = 12
-num_input_channels = 4 # will become 3 (or more if volume taken into account)
-num_conv1_features = 2
-num_conv2_features = 20
-num_fc1_neurons = 128
+num_input_channels = 4 
+num_conv1_features = 32
+num_conv2_features = 64
+num_fc1_neurons = 16
+
+print('num_conv1_features %d\nnum_conv2_features %d\nnum_fc1_neurons %d'
+		% (num_conv1_features, num_conv2_features, num_fc1_neurons))
 
 def weight_variable(shape):
-	initial = tf.truncated_normal(shape, stddev=0.2)
+	initial = tf.truncated_normal(shape, stddev=0.1)
 	return tf.Variable(initial)
 
 def bias_variable(shape):
-	initial = tf.constant(0.2, shape=shape)
+	initial = tf.constant(0.1, shape=shape)
 	return tf.Variable(initial)
 
 def conv2d(x, W):
@@ -33,7 +36,6 @@ def conv2d(x, W):
 
 def separable_conv2d(x, W, P):
 	return tf.nn.separable_conv2d(x, W, P, strides=[1, 1, 1, 1], padding='VALID')
-
 
 def new_cnn_model(x, init_weights):
 	"""Low level model for a CNN."""
@@ -44,9 +46,8 @@ def new_cnn_model(x, init_weights):
 
 	# First convolution layer
 	with tf.name_scope('conv1'):
-
 		W_conv1 = weight_variable([1, 3, num_input_channels, num_conv1_features])
-		P_conv1 = weight_variable([1,1,num_conv1_features*num_input_channels,num_conv1_features])
+		P_conv1 = weight_variable([1, 1, num_conv1_features*num_input_channels, num_conv1_features])
 		b_conv1 = bias_variable([num_conv1_features])
 		#h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
 		h_conv1 = tf.nn.relu(separable_conv2d(input_price, W_conv1, P_conv1) + b_conv1)
@@ -54,23 +55,45 @@ def new_cnn_model(x, init_weights):
 	# Second convolution layer
 	with tf.name_scope('conv2'):
 		W_conv2 = weight_variable([1, window_size-2, num_conv1_features, num_conv2_features])
+		P_conv2 = weight_variable([1, 1, num_conv2_features*num_conv1_features, num_conv2_features])
 		b_conv2 = bias_variable([num_conv2_features])
-		h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
+		#h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
+		h_conv2 = tf.nn.relu(separable_conv2d(h_conv1, W_conv2, P_conv2) + b_conv2)
+
+	# Uncomment when using 1 x 1 convolution
+	# Dropout on 2nd convolution layer during training
+	# with tf.name_scope('dropout'):
+	#  	keep_prob = tf.placeholder(tf.float32)
+	#  	h_conv2_drop = tf.nn.dropout(h_conv2, keep_prob)
 	
 	# Add in previous weights as a feature
 	past_weights = tf.reshape(init_weights[:,1:], [-1, num_coins, 1, 1])
 	h_conv2_weights = tf.concat([h_conv2, past_weights], axis=3)
+	# h_conv2_weights_dropout = tf.concat([h_conv2_drop, past_weights], axis=3)
 
-	## Flatten the 2nd convolution layer prior to the fully connected layers
+	# To run with 1x1 convolution layer uncomment lines conv3 through h_conv3_flat_cash
+	## 1 x 1 convolutional layer
+	# with tf.name_scope('conv3'):
+	# 	W_conv3 = weight_variable([1, 1, num_conv2_features+1, 1])
+	# 	b_conv3 = bias_variable([1])
+	# 	# h_conv3 = tf.nn.relu(conv2d(h_conv2_weights, W_conv3) + b_conv3)
+	# 	h_conv3 = tf.nn.relu(conv2d(h_conv2_weights_dropout, W_conv3) + b_conv3)
+	# 	h_conv3_flat = tf.reshape(h_conv3, [-1, num_coins])
+
+	# with tf.name_scope('cash'): 
+	# 	cash_bias = tf.Variable(0.1)
+	# 	cash_bias_tensor = tf.fill([tf.shape(input_price)[0], 1], cash_bias)
+	# 	h_conv3_flat_cash = tf.concat([h_conv3_flat, cash_bias_tensor], 1)			
+
+	# To run with fully-connected layers uncomment lines h_conv2_flat through h_fc2_cash
+	# Flatten the 2nd convolution layer prior to the fully connected layers
 	h_conv2_flat = tf.reshape(h_conv2_weights, [-1, num_coins*(num_conv2_features+1)])
 	#h_conv2_flat = tf.reshape(h_conv2, [-1, num_coins*num_conv2_features])
-	h_conv2_flat.get_shape()
 
 	# First fully connected layer
 	with tf.name_scope('fc1'):
 		W_fc1 = weight_variable([num_coins*(num_conv2_features+1), num_fc1_neurons])
 		b_fc1 = weight_variable([num_fc1_neurons])
-		# Flatten the 2nd convolution layer prior to the fully connected layers	
 		h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
 
 	# Dropout on first connected layer during training
@@ -88,11 +111,13 @@ def new_cnn_model(x, init_weights):
 	with tf.name_scope('cash'): 
 		cash_bias = tf.Variable(0.0)
 		cash_bias_tensor = tf.fill([tf.shape(input_price)[0], 1], cash_bias)
-		h_fc2_cash = tf.concat([h_fc2, cash_bias_tensor], 1)
-		
+		# h_fc2_cash = tf.concat([h_fc2, cash_bias_tensor], 1)
+		h_fc2_cash = tf.concat([cash_bias_tensor, h_fc2], 1)
+
 	# Final portfolio weight tensor
 	with tf.name_scope('weights'):
 		weights = tf.nn.softmax(h_fc2_cash, name="output_tensor")
+		# weights = tf.nn.softmax(h_conv3_flat_cash, name="output_tensor")
 
 	return weights, keep_prob
 

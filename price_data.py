@@ -9,6 +9,10 @@ import pdb
 import time
 from poloniex_api import *
 
+# Hyperparameter
+# currently inside get_batch_index_geometric as it depends on size of training data
+# beta = 0.00005 # time series sample bias in online stochastic batch learning
+
 global_price_array = []
 def read_data(directory='data/test/'):
 	# if we have already calculated the global price array, read it from txt
@@ -95,12 +99,6 @@ def read_data(directory='data/test/'):
 				btc_zec.append(row)
 			prices['BTC_ZEC']=btc_zec
 
-
-
-
-
-
-
 		dates = []
 		for key in prices.keys():
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
@@ -133,7 +131,6 @@ def read_data(directory='data/test/'):
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
 		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
-
 		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
 		#pdb.set_trace()
 
@@ -159,13 +156,55 @@ def calc_dp_dt_array(p, h):
 				# 1st order backward finite difference method
 				dp_dt_array[i,j] = p[i,j]-p[i,j-1]
 			elif (j == 1 or j == p.shape[1]-2): 
-				# 2nd order finite difference method
+				# 2nd order centered finite difference method
 				dp_dt_array[i,j] = (p[i,j+1]-p[i,j-1]) / 2.0
 			else: 
 				# a 4th order finite difference method
 				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
 	dp_dt_array = np.divide(dp_dt_array, h)
 	return dp_dt_array
+
+def calc_uniform_portfolio(price_change):
+	uniform_portfolio = np.full(price_change.shape[1], 1.0/price_change.shape[1])
+	# TODO: calculate portfolio return for an initial uniform portfolio with 
+	# 		no redistribution throughout the entire period
+	unchanged_uniform_portfolio = np.full(price_change.shape[1], 1.0/price_change.shape[1])
+	uniform_portfolio_value = 1.0
+	for i in range(0, price_change.shape[0]):
+		multiplier = 0.0
+		for j in range(0, price_change.shape[1]):
+			# TODO: add in transaction cost for reweighting to uniform portfolio
+			multiplier += price_change[i,j] * uniform_portfolio[j]
+		# 	unchanged_multiplier += price_change[i,j] * unchanged_uniform_portfolio[j]
+		# 	unchanged_uniform_portfolio[j] =  
+		# unchanged_uniform_portfolio 
+		uniform_portfolio_value *= multiplier
+	print('The uniform portfolio value with no transaction costs = ', uniform_portfolio_value)
+	return uniform_portfolio_value
+
+def calc_optimal_portfolio(price_change, prefix):
+	# optimal portfolio has entire portfolio in the asset with largest price change
+	opt_porfolio_index = np.argmax(price_change, axis=1)
+	opt_portfolio_value = 1.0
+	optimal_portfolio = np.zeros(price_change.shape)
+	optimal_return = np.zeros(opt_porfolio_index.shape)
+	for i in range(0,price_change.shape[0]):
+		for j in range(0, price_change.shape[1]):
+			if (j == opt_porfolio_index[i]):
+				optimal_return[i] = price_change[i,j]
+				optimal_portfolio[i,j] = 1.0
+				opt_portfolio_value *= price_change[i,j]
+			else:
+				optimal_portfolio[i,j] = 0.0
+	np.savetxt(prefix + '_labels.out', price_change, fmt='%.8f', delimiter=' ')
+	np.savetxt(prefix + '_optimal_portfolio_index.out', opt_porfolio_index, fmt='%d')
+	np.savetxt(prefix + '_optimal_portfolio_return.out', optimal_return, fmt='%.8f')
+	np.savetxt(prefix + '_optimal_portfolio.out', optimal_portfolio, fmt='%.1f', delimiter=' ')
+	print('')
+	print('Total %s trading period = %d steps and %.2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
+	print('The optimal portfolio value with no transaction costs = ', opt_portfolio_value)
+	calc_uniform_portfolio(price_change)
+	return optimal_portfolio, opt_portfolio_value
 
 def get_current_window():
 	t = time.time()
@@ -175,7 +214,6 @@ def get_current_window():
 	window = array[:,-50,:]
 	#pdb.set_trace()
 	return window
-
 
 #TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -238,15 +276,32 @@ def get_data(array,window_size,stride):
 	#print(np.array(price_changes))
 	return np.array(train),np.array(price_changes)
 
+def get_random_batch_index_geometric(max_index):
+	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
+	p = 10.0/max_index	# Make p larger to favor more recent data 
+	k = np.random.geometric(p)
+	while k > max_index:
+		k = np.random.geometric(p)
+	start_index = max_index - k
+	return start_index 
+
+def get_random_batch_index_uniform(max_index):
+	# Stochastic sampling of uniform distribution
+	start_index = np.random.random_integers(0, max_index)
+	return start_index
+
 def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_step):
-	start_index = training_step % (prices.shape[0]-batch_size)
+	start_index = get_random_batch_index_geometric(prices.shape[0]-batch_size)
+	# start_index = get_random_batch_index_uniform(prices.shape[0]-batch_size)
+	# Systematic uniform sampling of data
+	# start_index = training_step % (prices.shape[0]-batch_size)
 	p = prices[start_index:start_index+batch_size,:,:]
 	p_c = price_changes[start_index:start_index+batch_size,:,:]
 	p_c = np.reshape(p_c, (batch_size, num_coins))
 	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	#pdb.set_trace()
-	return p, p_c
+	return p, p_c, start_index
 
 
 
