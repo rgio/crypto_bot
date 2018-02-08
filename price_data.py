@@ -189,4 +189,6 @@ def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_
 	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	#pdb.set_trace()
-	return p, p_c
+	return p, p_c, start_index
+
+

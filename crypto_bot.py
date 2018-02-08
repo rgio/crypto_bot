@@ -8,6 +8,7 @@ import datetime
 import tempfile
 import numpy as np
 import tensorflow as tf
+import sys
 
 # Imports of our own code
 from price_data import *
@@ -20,7 +21,7 @@ import pdb
 window_size = 50
 stride = 1
 price_batch_size = 100
-num_training_steps = 500000
+num_training_steps = 300000
 num_coins = 11
 num_input_channels = 5 # high,open, volume, dp/dt
 
@@ -97,17 +98,25 @@ def main():
 	# Random weights for 1st training step
 	random_weights = np.random.rand(price_batch_size, num_coins+1)
 
+	steps_per_epoch = (train_data.shape[0]-price_batch_size)
+	memory_array = np.random.rand(steps_per_epoch, num_coins+1)
+	#pdb.set_trace()
+
 	# Run the training and testing
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
 		batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, 0)
 		input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
-				init_weights: random_weights, batch_size: price_batch_size, keep_prob: 1.0}) 
+				init_weights: memory_array[:price_batch_size], batch_size: price_batch_size, keep_prob: 1.0})
+
 		for i in range(1,num_training_steps):
 			batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i)
 			input_weights_batch = get_next_price_batch(train_data, train_labels, price_batch_size, num_coins, i-1)
+			current_time_step = input_weights_batch[2]
 			input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1], 
-				init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0}) 
+				init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0})  
+			memory_array[current_time_step:current_time_step+price_batch_size]=input_weights
+			#pdb.set_trace()
 			if i % 1000 == 0:
 				train_value = final_value.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
 					init_weights: input_weights, batch_size: price_batch_size, keep_prob: 1.0})
