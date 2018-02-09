@@ -18,12 +18,12 @@ TICKER_URL = "https://poloniex.com/public?command=returnTicker"
 DATA_DIR = "live_data"
 COLUMNS = ["date","high","low","open","close","volume","quoteVolume","weightedAverage"]
 COINS_INDICES = {"BTS":0,"ZEC":1,"STRAT":2,"XEM":3,"STEEM":4,"LTC":5,"ETC":6,"XRP":7,"XMR":8,"DASH":9,"ETH":10}
-PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"]
-#PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
-#"BTC_BCH","BTC_STR","BTC_LSK"]
+#PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"] # 12 total coins
+PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
+   "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 PAIRS_DICT = {0:"BTC_BTS",1:"BTC_ZEC",2:"BTC_STRAT",3:"BTC_XEM",4:"BTC_STEEM",5:"BTC_LTC",6:"BTC_ETC",7:"BTC_XRP",8:"BTC_XMR",9:"BTC_DASH",10:"BTC_ETH"}
 PARAMS = ['high','open','volume']
-num_coins = 11
+num_coins = len(PAIRS)
 
 polo = Poloniex()
 # myCoach = Coach(timeFrame=1.0, callLimit=6)

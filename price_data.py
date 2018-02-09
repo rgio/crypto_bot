@@ -9,95 +9,21 @@ import pdb
 import time
 from poloniex_api import *
 
-# Hyperparameter
-# currently inside get_batch_index_geometric as it depends on size of training data
-# beta = 0.00005 # time series sample bias in online stochastic batch learning
-
 global_price_array = []
-def read_data(directory='data/test/'):
+def read_data(directory='live_data/'):
 	# if we have already calculated the global price array, read it from txt
 	try:
 		raise Exception('err')
 		global_price_array = np.genfromtxt('global_price')
 	except:
 		prices = {}
-		# with open('data/BTC_ETH.csv', 'r') as file:
-		with open(directory+'btc_eth_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter=' ', quotechar='|')
-			btc_eth = []
-			for row in reader:
-				btc_eth.append(row)
-			prices['BTC_ETH']=btc_eth
-		# with open('data/BTC_LTC.csv', 'r') as file:
-		with open(directory+'btc_ltc_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_ltc = []
-			for row in reader:
-				btc_ltc.append(row)
-			prices['BTC_LTC']=btc_ltc
-		# with open('data/BTC_XRP.csv', 'r') as file:
-		with open(directory+'btc_xrp_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xrp = []
-			for row in reader:
-				btc_xrp.append(row)
-			prices['BTC_XRP']=btc_xrp
-		# with open('data/BTC_ETC.csv', 'r') as file:
-		with open(directory+'btc_etc_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_etc = []
-			for row in reader:
-				btc_etc.append(row)
-			prices['BTC_ETC']=btc_etc
-		# with open('data/BTC_XEM.csv', 'r') as file:
-		with open(directory+'btc_xem_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xem = []
-			for row in reader:
-				btc_xem.append(row)
-			prices['BTC_XEM']=btc_xem
-		# with open('data/BTC_DASH.csv', 'r') as file:
-		with open(directory+'btc_dash_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_dash = []
-			for row in reader:
-				btc_dash.append(row)
-			prices['BTC_DASH']=btc_dash
-		# with open('data/BTC_STEEM.csv', 'r') as file:
-		with open(directory+'btc_steem_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_steem = []
-			for row in reader:
-				btc_steem.append(row)
-			prices['BTC_STEEM']=btc_steem
-		# with open('data/BTC_BTS.csv', 'r') as file:
-		with open(directory+'btc_bts_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_bts = []
-			for row in reader:
-				btc_bts.append(row)
-			prices['BTC_BTS']=btc_bts
-		# with open('data/BTC_STRAT.csv', 'r') as file:
-		with open(directory+'btc_strat_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_strat = []
-			for row in reader:
-				btc_strat.append(row)
-			prices['BTC_STRAT']=btc_strat
-		# with open('data/BTC_XMR.csv', 'r') as file:
-		with open(directory+'btc_xmr_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_xmr = []
-			for row in reader:
-				btc_xmr.append(row)
-			prices['BTC_XMR']=btc_xmr
-		# with open('data/BTC_ZEC.csv','r') as file:
-		with open(directory+'btc_zec_test.csv', 'r') as file:
-			reader = csv.reader(file, delimiter = ' ', quotechar='|')
-			btc_zec = []
-			for row in reader:
-				btc_zec.append(row)
-			prices['BTC_ZEC']=btc_zec
+		for pair in PAIRS:
+			with open(directory+pair+"_test.csv") as file:
+				reader = csv.reader(file, delimiter=' ', quotechar='|')
+				pair_info = []
+				for row in reader:
+					pair_info.append(row)
+				prices[pair]=pair_info
 
 		dates = []
 		for key in prices.keys():
@@ -212,10 +138,8 @@ def get_current_window():
 	fetch_data(start_time=t0)
 	array = read_data('live_data/')
 	window = array[:,-50,:]
-	#pdb.set_trace()
 	return window
 
-#TODO change to account for numepochs
 def split_data(global_price_array,train_size,validation_size,test_size):
 	train = global_price_array[:,:train_size]
 	validation = global_price_array[:,train_size:train_size+validation_size]
@@ -272,15 +196,13 @@ def get_data(array,window_size,stride):
 		prices, pc = get_local_prices(window_size,stride,array,i)
 		train.append(prices)
 		price_changes.append(pc[:,window_size-1:window_size])
-	#pdb.set_trace()
-	#print(np.array(price_changes))
 	return np.array(train),np.array(price_changes)
 
-def get_random_batch_index_geometric(max_index):
+def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = 10.0/max_index	# Make p larger to favor more recent data 
+	p = hparams.geometric_decay/max_index	# Make p larger to favor more recent data 
 	k = np.random.geometric(p)
-	while k > max_index:
+	while k > max_index-1:
 		k = np.random.geometric(p)
 	start_index = max_index - k
 	return start_index 
@@ -290,17 +212,20 @@ def get_random_batch_index_uniform(max_index):
 	start_index = np.random.random_integers(0, max_index)
 	return start_index
 
-def get_next_price_batch(prices, price_changes, batch_size, num_coins, training_step):
-	start_index = get_random_batch_index_geometric(prices.shape[0]-batch_size)
-	# start_index = get_random_batch_index_uniform(prices.shape[0]-batch_size)
-	# Systematic uniform sampling of data
-	# start_index = training_step % (prices.shape[0]-batch_size)
-	p = prices[start_index:start_index+batch_size,:,:]
-	p_c = price_changes[start_index:start_index+batch_size,:,:]
-	p_c = np.reshape(p_c, (batch_size, num_coins))
-	btc_btc = np.ones( (1, batch_size), dtype=np.float32)
+def get_specific_price_batch(prices, price_changes, start_index, hparams):
+	p = prices[start_index:start_index+hparams.batch_size,:,:]
+	p_c = price_changes[start_index:start_index+hparams.batch_size,:,:]
+	p_c = np.reshape(p_c, (hparams.batch_size, hparams.num_coins))
+	btc_btc = np.ones( (1, hparams.batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
-	#pdb.set_trace()
+	return p, p_c, start_index
+
+def get_next_price_batch(prices, price_changes, training_step, hparams):
+	start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
+	# start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
+	# Systematic uniform sampling of data
+	# start_index = training_step % (prices.shape[0]-hparams.batch_size)
+	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
 	return p, p_c, start_index
 
 
