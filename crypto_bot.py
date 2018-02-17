@@ -15,23 +15,10 @@ from price_data import *
 from cnn import *
 from loss_value import *
 from print_results import *
-<<<<<<< HEAD
 import pdb
 
-# Model hyperparameters
-window_size = 50
-stride = 1
-price_batch_size = 100
-num_training_steps = 200000
-num_coins = 11
-data_dir = 'live_data/'
-num_input_channels = 4 # high,open,volume,dp/dt
 
-print('price_batch_size %d\nnum_training_steps %d\n' % (price_batch_size, num_training_steps))
 
-def main():
-	# Load training and eval data
-	input_array = read_data(data_dir)
 from hparams import *
 
 def main():
@@ -90,7 +77,7 @@ def main():
 	train_writer.add_graph(tf.get_default_graph())
 	saver = tf.train.Saver()
 	timestamp = '{:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
-	path_to_model_dir = '/tmp/crypto_bot/cnn_model_' + timestamp + '/'
+	path_to_model_dir = './tmp/crypto_bot/cnn_model_' + timestamp + '/'
 	pathlib.Path(path_to_model_dir).mkdir(parents=True, exist_ok=True)
 	print_hyperparameters(hparams, path_to_model_dir)
 	path_to_final_model = path_to_model_dir + 'cnn_model.ckpt'
@@ -101,17 +88,21 @@ def main():
 	random_weights = np.random.rand(hparams.batch_size, hparams.num_coins+1)
 	val_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
 
+	memory_array = np.random.rand(train_data.shape[0], hparams.num_coins+1)
+
 	# Run the training and testing
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
 		batch = get_next_price_batch(train_data, train_labels, 0, hparams)
 		input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
-				init_weights: random_weights, batch_size: hparams.batch_size, keep_prob: 1.0}) 
+				init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0}) 
+		memory_array[:hparams.batch_size] = input_weights
 		for i in range(1, hparams.num_training_steps):
 			batch = get_next_price_batch(train_data, train_labels, i, hparams)
 			input_weights_batch = get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams)
 			input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1], 
-				init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: 1.0}) 
+				init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
+			memory_array[batch[2]:batch[2]+hparams.batch_size] = input_weights
 			if i % 1000 == 0:
 				calc_optimal_portfolio(batch[1], 'tmp/train')
 				train_value = final_value.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
@@ -169,6 +160,17 @@ def main():
 		portfolio_weights = weights.eval(feed_dict={input_prices: test_data, labels: test_labels, 
 			init_weights: input_weights, batch_size: test_labels.shape[0], keep_prob: 1.0})
 		print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
+		print('Test %s trading period = %d steps and %.2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
+
+
+		"""while True:
+			data, labels = get_current_window()
+			print(data)
+			print(labels)
+			weights = weights.eval(feed_dict={input_prices: data, labels: labels, 
+				init_weights: input_weights, keep_prob: 1.0})
+			get_new_portfolio(weights)
+			time.sleep(1800)"""
 
 		# Proper validation test
 		# validation_weights = np.zeros((1, validation_labels.shape[1]))
