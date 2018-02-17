@@ -169,5 +169,5 @@ def main():
 		# np.savetxt('tmp/proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 		# print('The (proper) final validation set value multiplier is %.8f' % portfolio_value)
 
-
-
+if __name__ == '__main__':
+	main()
