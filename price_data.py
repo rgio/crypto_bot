@@ -218,13 +218,15 @@ def get_specific_price_batch(prices, price_changes, start_index, hparams):
 	p_c = np.reshape(p_c, (hparams.batch_size, hparams.num_coins))
 	btc_btc = np.ones( (1, hparams.batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
+	#print("PSHAPE")
+	#print(prices.shape)
 	return p, p_c, start_index
 
 def get_next_price_batch(prices, price_changes, training_step, hparams):
-	start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
+	#start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
 	# start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
 	# Systematic uniform sampling of data
-	# start_index = training_step % (prices.shape[0]-hparams.batch_size)
+	start_index = training_step % (prices.shape[0]-hparams.batch_size)
 	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
 	return p, p_c, start_index
 
