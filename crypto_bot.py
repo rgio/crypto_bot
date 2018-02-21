@@ -15,6 +15,7 @@ from price_data import *
 from cnn import *
 from loss_value import *
 from print_results import *
+import functions as fn
 import pdb
 
 
@@ -24,7 +25,11 @@ from hparams import *
 def main():
 	# Load training and eval data
 	hparams = set_hyperparameters()
-	input_array = read_data()
+	try:
+		input_array = read_data()
+	except:
+		fetch_data()
+		input_array = read_data()
 	total_time_steps = input_array.shape[1]
 	train_size = int(total_time_steps*0.7)
 	validation_size = int(total_time_steps*0.15)
@@ -35,11 +40,13 @@ def main():
 	validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], hparams.num_coins))
 	btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
 	validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
+	fn.check_path('tmp/validation')
 	opt_val_portfolio, opt_val_port_return = calc_optimal_portfolio(validation_labels, 'tmp/validation')
 	test_data, test_labels = get_data(test, hparams.window_size, hparams.stride)
 	test_labels = np.reshape(test_labels, (test_labels.shape[0], hparams.num_coins))
 	btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
 	test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
+	fn.check_path('tmp/test')
 	opt_test_portfolio, opt_test_port_return = calc_optimal_portfolio(test_labels, 'tmp/test')
 
 	# Create the model
@@ -76,8 +83,9 @@ def main():
 	train_writer = tf.summary.FileWriter(graph_location)
 	train_writer.add_graph(tf.get_default_graph())
 	saver = tf.train.Saver()
-	timestamp = '{:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
-	path_to_model_dir = './tmp/crypto_bot/cnn_model_' + timestamp + '/'
+	timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
+	path_to_model_dir = 'tmp/crypto_bot/cnn_model_' + timestamp + '/'
+	fn.check_path(path_to_model_dir)
 	pathlib.Path(path_to_model_dir).mkdir(parents=True, exist_ok=True)
 	print_hyperparameters(hparams, path_to_model_dir)
 	path_to_final_model = path_to_model_dir + 'cnn_model.ckpt'

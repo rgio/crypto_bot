@@ -15,7 +15,7 @@ secret = 'c65c99a9a94b034fc19569170308bc29c86eacc539fa5bf7b5d34714dce0c1ac4fd603
 
 FETCH_URL = "https://poloniex.com/public?command=returnChartData&currencyPair=%s&start=%d&end=%d&period=300"
 TICKER_URL = "https://poloniex.com/public?command=returnTicker"
-DATA_DIR = "live_data"
+DATA_DIR = "data"
 COLUMNS = ["date","high","low","open","close","volume","quoteVolume","weightedAverage"]
 COINS_INDICES = {"BTS":0,"ZEC":1,"STRAT":2,"XEM":3,"STEEM":4,"LTC":5,"ETC":6,"XRP":7,"XMR":8,"DASH":9,"ETH":10}
 #PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"] # 12 total coins
@@ -116,7 +116,7 @@ def fetch_data(start_time=1439010600,end_time=9999999999,path=DATA_DIR):
         outf = open(datafile, "w")
         df.to_csv(outf, index=False, columns=COLUMNS)
         outf.close()
-        print("Finish.")
+        print('completed: {pair}')
         #time.sleep(30)
 
 

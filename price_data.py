@@ -10,7 +10,7 @@ import time
 from poloniex_api import *
 
 global_price_array = []
-def read_data(directory='live_data/'):
+def read_data(directory='data/'):
 	# if we have already calculated the global price array, read it from txt
 	try:
 		raise Exception('err')
@@ -72,19 +72,19 @@ def read_data(directory='live_data/'):
 def calc_dp_dt_array(p, h):
 	dp_dt_array = np.zeros(p.shape, dtype=np.float32)
 	# loop over num_coins
-	for i in range(p.shape[0]): 
+	for i in range(p.shape[0]):
 		# loop over all time steps
-		for j in range(p.shape[1]): 
-			if j == 0: 
+		for j in range(p.shape[1]):
+			if j == 0:
 				# 1st order forward finite difference method
 				dp_dt_array[i,j] = p[i,j+1]-p[i,j]
-			elif j == p.shape[1]-1: 
+			elif j == p.shape[1]-1:
 				# 1st order backward finite difference method
 				dp_dt_array[i,j] = p[i,j]-p[i,j-1]
-			elif (j == 1 or j == p.shape[1]-2): 
+			elif (j == 1 or j == p.shape[1]-2):
 				# 2nd order centered finite difference method
 				dp_dt_array[i,j] = (p[i,j+1]-p[i,j-1]) / 2.0
-			else: 
+			else:
 				# a 4th order finite difference method
 				dp_dt_array[i,j] = (8.0*(p[i,j+1]-p[i,j-1]) - (p[i,j+2]-p[i,j-2]) / 12.0)
 	dp_dt_array = np.divide(dp_dt_array, h)
@@ -136,7 +136,7 @@ def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
 	fetch_data(start_time=t0)
-	array = read_data('live_data/')
+	array = read_data('data/')
 	window = array[:,-50,:]
 	return window
 
@@ -155,7 +155,7 @@ def get_local_prices(window_size,stride,global_price_array,current_step):
 		normalized = np.divide(local,np.abs(last))
 		normalized[np.isnan(normalized)==True]=0.01
 		normalized[np.isinf(normalized)==True]=0.01
-		shift = global_price_array[:,start+1:stop+1]		
+		shift = global_price_array[:,start+1:stop+1]
 		a = shift[:,(window_size-1):window_size]
 		normalized_shift = np.divide(shift,a)
 		normalized_shift[np.isnan(normalized_shift)==True]=0.01
@@ -200,12 +200,12 @@ def get_data(array,window_size,stride):
 
 def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = hparams.geometric_decay/max_index	# Make p larger to favor more recent data 
+	p = hparams.geometric_decay/max_index	# Make p larger to favor more recent data
 	k = np.random.geometric(p)
 	while k > max_index-1:
 		k = np.random.geometric(p)
 	start_index = max_index - k
-	return start_index 
+	return start_index
 
 def get_random_batch_index_uniform(max_index):
 	# Stochastic sampling of uniform distribution
