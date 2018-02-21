@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ba82cad8-905f-4a63-9c6d-ce980169f4b6" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/crypto_bot.py" afterPath="$PROJECT_DIR$/crypto_bot.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/poloniex_api.py" afterPath="$PROJECT_DIR$/poloniex_api.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/price_data.py" afterPath="$PROJECT_DIR$/price_data.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmp/train_labels.out" afterPath="$PROJECT_DIR$/tmp/train_labels.out" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmp/train_optimal_portfolio.out" afterPath="$PROJECT_DIR$/tmp/train_optimal_portfolio.out" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmp/train_optimal_portfolio_index.out" afterPath="$PROJECT_DIR$/tmp/train_optimal_portfolio_index.out" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tmp/train_optimal_portfolio_return.out" afterPath="$PROJECT_DIR$/tmp/train_optimal_portfolio_return.out" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -22,10 +25,35 @@
       <file leaf-file-name="crypto_bot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/crypto_bot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="385">
-              <caret line="87" column="0" lean-forward="false" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+            <state relative-caret-position="5478">
+              <caret line="166" column="91" lean-forward="true" selection-start-line="166" selection-start-column="91" selection-end-line="166" selection-end-column="91" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="hparams.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/hparams.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#38#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="price_data.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/price_data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-5940">
+              <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="13" />
+              <folding>
+                <element signature="e#0#38#0" expanded="true" />
+                <element signature="e#6602#7497#1" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -37,19 +65,6 @@
             <state relative-caret-position="165">
               <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="price_data.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/price_data.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="781">
-              <caret line="124" column="12" lean-forward="false" selection-start-line="124" selection-start-column="12" selection-end-line="124" selection-end-column="12" />
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-                <element signature="e#6602#7497#1" expanded="false" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -101,6 +116,19 @@
       <find>fetch_data</find>
       <find>tmp</find>
       <find>/</find>
+      <find>read_d</find>
+      <find>calc_dp</find>
+      <find>calc_uni</find>
+      <find>calc_op</find>
+      <find>get_cu</find>
+      <find>split_da</find>
+      <find>get_dat</find>
+      <find>get_rand</find>
+      <find>get_ran</find>
+      <find>get_speci</find>
+      <find>read_data</find>
+      <find>get_next</find>
+      <find>cnn</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -425,17 +453,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/price_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="781">
-          <caret line="124" column="12" lean-forward="false" selection-start-line="124" selection-start-column="12" selection-end-line="124" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#6602#7497#1" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/poloniex_api.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="367">
@@ -454,10 +471,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/hparams.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/price_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5940">
+          <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+            <element signature="e#6602#7497#1" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/crypto_bot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="385">
-          <caret line="87" column="0" lean-forward="false" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+        <state relative-caret-position="5478">
+          <caret line="166" column="91" lean-forward="true" selection-start-line="166" selection-start-column="91" selection-end-line="166" selection-end-column="91" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
           </folding>
