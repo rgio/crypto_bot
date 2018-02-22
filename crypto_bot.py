@@ -82,6 +82,8 @@ def main():
 	train_writer.add_graph(tf.get_default_graph())
 	saver = tf.train.Saver()
 	timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
+	with open('tmp/crypto_bot/most_recent_time_stamp.txt', 'w') as f:
+		f.write('%s' % timestamp)
 	path_to_model_dir = 'tmp/crypto_bot/cnn_model_' + timestamp + '/'
 	fn.check_path(path_to_model_dir)
 	pathlib.Path(path_to_model_dir).mkdir(parents=True, exist_ok=True)
@@ -94,6 +96,7 @@ def main():
 	random_weights = np.random.rand(hparams.batch_size, hparams.num_coins+1)
 	val_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
 
+	# Stores our portfolio weights
 	memory_array = np.random.rand(train_data.shape[0], hparams.num_coins+1)
 
 	# Run the training and testing
@@ -125,15 +128,15 @@ def main():
 					init_weights: val_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 				print('Step %d, validation_size %d, validation_value %g' % (i, validation_labels.shape[0], final_pvm))
 				if (final_pvm > best_val_value):
-					saver.save(sess, path_to_best_model) 
+					save_path_best_model = saver.save(sess, path_to_best_model) 
 					best_val_value = final_pvm
-					print("new best validation value\n")
+					print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], 
 				init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: hparams.dropout_keep_prob})
 
 		# Save the results
-		save_path = saver.save(sess, path_to_final_model)
-		print('The weights are saved in %s' % path_to_final_model)
+		save_path_final_model = saver.save(sess, path_to_final_model)
+		print('The final model weights are saved in %s' % save_path_final_model)
 
 		# Print the validation results
 		random_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
@@ -166,7 +169,7 @@ def main():
 		portfolio_weights = weights.eval(feed_dict={input_prices: test_data, labels: test_labels, 
 			init_weights: input_weights, batch_size: test_labels.shape[0], keep_prob: 1.0})
 		prnt.print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
-		print('Test %s trading period = %d steps and %.2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
+		#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))
 
 
 		"""while True:
