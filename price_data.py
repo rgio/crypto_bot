@@ -209,7 +209,7 @@ def get_random_batch_index_geometric(max_index, hparams):
 
 def get_random_batch_index_uniform(max_index):
 	# Stochastic sampling of uniform distribution
-	start_index = np.random.random_integers(0, max_index)
+	start_index = np.random.random_integers(0, max_index-1)
 	return start_index
 
 def get_specific_price_batch(prices, price_changes, start_index, hparams):
@@ -226,7 +226,7 @@ def get_next_price_batch(prices, price_changes, training_step, hparams):
 	#start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
 	# start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
 	# Systematic uniform sampling of data
-	start_index = training_step % (prices.shape[0]-hparams.batch_size)
+	start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
 	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
 	return p, p_c, start_index
 
