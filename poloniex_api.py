@@ -100,7 +100,7 @@ def get_balances():
         balances[coin]=float(b[coin])
     return balances
 
-def fetch_data(start_time=1439010600,end_time=9999999999,path=DATA_DIR):
+def fetch_data(start_time=1482123600,end_time=9999999999,path=DATA_DIR):
     for pair in PAIRS:
         datafile = os.path.join(path, pair+"_test"+".csv")
         timefile = os.path.join(path, pair+"_test")
