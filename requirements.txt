@@ -12,6 +12,7 @@ protobuf==3.5.1
 python-dateutil==2.6.1
 pytz==2018.3
 requests==2.18.4
+scikit-optimize==0.5.1
 six==1.11.0
 tensorflow==1.4.1
 tensorflow-tensorboard==0.4.0
