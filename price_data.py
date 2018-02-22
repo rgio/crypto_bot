@@ -135,9 +135,10 @@ def calc_optimal_portfolio(price_change, prefix):
 def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
-	fetch_data(start_time=t0)
-	array = read_data('data/')
-	window = array[:,-50,:]
+	fetch_data(start_time=t0,path='livedata/')
+	array = read_data('livedata/')
+	pdb.set_trace()
+	window = array[:,:-50,:]
 	return window
 
 def split_data(global_price_array,train_size,validation_size,test_size):
