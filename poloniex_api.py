@@ -8,6 +8,7 @@ import time
 import pandas as pd
 import pdb
 from poloniex import Poloniex
+import numpy as np
 # from poloniex import Poloniex, Coach
 
 key = 'MRRIC3WC-9UX18G52-V46IOUH5-45VLK5VW'
@@ -17,15 +18,15 @@ FETCH_URL = "https://poloniex.com/public?command=returnChartData&currencyPair=%s
 TICKER_URL = "https://poloniex.com/public?command=returnTicker"
 DATA_DIR = "data"
 COLUMNS = ["date","high","low","open","close","volume","quoteVolume","weightedAverage"]
-COINS_INDICES = {"BTS":0,"ZEC":1,"STRAT":2,"XEM":3,"STEEM":4,"LTC":5,"ETC":6,"XRP":7,"XMR":8,"DASH":9,"ETH":10,"STR":11,"LSK":12,"DOGE":13,"SC":14,"SYS":15,"DGB":16,"MAID":17,"NXT":18,"BCN":19}
+COINS_INDICES = {"BTC":0,"BTS":1,"ZEC":2,"STRAT":3,"XEM":4,"STEEM":5,"LTC":6,"ETC":7,"XRP":8,"XMR":9,"DASH":10,"ETH":11,"STR":12,"LSK":13,"DOGE":14,"SC":15,"SYS":16,"DGB":17,"MAID":18,"NXT":19,"BCN":20}
 #PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"] # 12 total coins
 PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
    "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 COINS = ["BTC"]
-COINS.extend([pair.split(['_'])[1] for pair in PAIRS])
+COINS.extend([pair.split('_')[1] for pair in PAIRS])
 PAIRS_DICT = {0:"BTC_BTS",1:"BTC_ZEC",2:"BTC_STRAT",3:"BTC_XEM",4:"BTC_STEEM",5:"BTC_LTC",6:"BTC_ETC",7:"BTC_XRP",8:"BTC_XMR",9:"BTC_DASH",10:"BTC_ETH"}
 PARAMS = ['high','open','volume']
-num_coins = len(PAIRS)
+num_coins = len(PAIRS)+1
 
 polo = Poloniex()
 # myCoach = Coach(timeFrame=1.0, callLimit=6)
@@ -35,57 +36,60 @@ polo.Secret = secret
 # polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
 polo.public = Poloniex()
 polo.private = Poloniex(polo.Key, polo.Secret)
+new = [0]*21
+new[0]=0.5
+new[11]=0.5
 
 def get_new_portfolio(new_portfolio):
     rates = get_current_rates()
     balances = get_balances()
     portfolio_value = get_portfolio_value(rates,balances) # in BTC
     cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
-    threshold = 1.0 # minimum transaction value in USDT
-    differences = new_portfolio-cur_portfolio
-    differences = sorted(differences)
+    differences = np.array(new_portfolio) - np.array(cur_portfolio)
     #place sell orders first
     for i in range(len(differences)):
         curr_pair = PAIRS_DICT[i]
-        curr_rate = rates[curr_pair]
+        curr_rate = rates[curr_pair]['last']
         if differences[i] < 0:
             amount_btc = abs(differences[i]) * portfolio_value
-            amount_usdt = amount_btc * bitcoin_price
-            amount_coin = amount_btc * curr_rate
-            #sell if amount greater than threshold
-            if(amount_usdt>threshold):
-                place_sell_order(curr_pair,curr_rate,amount_coin)
+            amount_coin = amount_btc / curr_rate
+            place_sell_order(curr_pair,curr_rate,amount_coin)
 
             #TODO make sell order
     time.sleep(15)#wait for sell orders to process        
     for i in range(len(differences)):
+        curr_pair = PAIRS_DICT[i]
+        curr_rate = rates[curr_pair]['last']
         if differences[i] > 0:
             amount_btc = differences[i] * portfolio_value
-            amount_usdt = amount_btc * bitcoin_price
-            amount_coin = amount_btc * rates[curr_pair]
-            #buy if amount greater than threshold
-            if(amount_usdt>threshold):
-                place_buy_order(curr_pair,curr_rate,amount_coin)
+            amount_coin = amount_btc / curr_rate
+            place_buy_order(curr_pair,curr_rate,amount_coin)
     return portfolio_value
 
+#IN BTC
 def get_portfolio_value(rates,balances):
     portfolio_value = 0
-    bitcoin_price = rates['USDT_BTC']['last']
     for coin in balances:
-        portfolio_value+= balances[coin]*rates['BTC_'+coin]['last']
+        if(coin=="BTC"):
+            portfolio_value += balances[coin]
+        else:
+            portfolio_value += balances[coin]*rates['BTC_'+coin]['last']
     return portfolio_value
 
-def get_weights(rates=False,balances=False,portfolio_value=False):
-    if(not rates):
+def get_weights(rates=None,balances=None,portfolio_value=None):
+    if(rates is None):
         rates = get_current_rates()
-    if(not balances):
+    if(balances is None):
         balances = get_balances
-    if(not portfolio_value):
+    if(portfolio_value is None):
         portfolio_value = get_portfolio_value(rates,balances)
     weights = [0]*num_coins
     for coin in balances:
-        rate = rates[coin]
-        coin_value = rate*balances[coin]
+        if(coin=="BTC"):
+            coin_value = balances[coin]
+        else:
+            rate = rates["BTC_"+coin]['last']
+            coin_value = rate*balances[coin]
         weights[COINS_INDICES[coin]]=coin_value/portfolio_value
     return weights
 
