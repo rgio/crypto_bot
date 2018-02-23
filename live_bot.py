@@ -16,7 +16,7 @@ import cnn
 import poloniex_api as pol 
 
 # Global variable
-# comment out this line to use most recent training run
+# change this to false to use most recent training run
 # change this to the switch the model that gets restored
 TIME_STAMP = "2018-02-22_10-31" 
 
@@ -59,6 +59,7 @@ def main():
 		print('Model restored from %s\n' %  path_to_ckpt_files)
 		while True:
 			data, labels = pdata.get_current_window()
+			input_weights = pol.get_weights()
 			weights = weights.eval(feed_dict={input_prices: data, labels: labels, 
 				init_weights: input_weights, keep_prob: 1.0})
 			portfolio_value = pol.get_new_portfolio(weights)
