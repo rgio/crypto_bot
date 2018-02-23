@@ -14,7 +14,7 @@ def set_hyperparameters():
 		window_size=50,
 		stride=1,
 		batch_size=100,
-		num_training_steps=200000,
+		num_training_steps=150000,
 		learning_rate=2e-4,
 		geometric_decay=2.0, # the large geometric_decay is the more recent times will be selected in training
 		num_input_channels=4, # high, open, volume, dp/dt
@@ -24,5 +24,5 @@ def set_hyperparameters():
 		dropout_keep_prob=0.5,
 		# num_fc2_neurons = len(hparams.coin_pairs) + 1 (+1 needed for BTC)
 		)
-	hparams.add_hparam("num_coins", len(hparams.coin_pairs))	
+	hparams.add_hparam("num_coins", len(hparams.coin_pairs))
 	return hparams

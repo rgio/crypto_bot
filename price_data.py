@@ -92,7 +92,7 @@ def calc_dp_dt_array(p, h):
 
 def calc_uniform_portfolio(price_change):
 	uniform_portfolio = np.full(price_change.shape[1], 1.0/price_change.shape[1])
-	# TODO: calculate portfolio return for an initial uniform portfolio with 
+	# TODO: calculate portfolio return for an initial uniform portfolio with
 	# 		no redistribution throughout the entire period
 	unchanged_uniform_portfolio = np.full(price_change.shape[1], 1.0/price_change.shape[1])
 	uniform_portfolio_value = 1.0
@@ -102,8 +102,8 @@ def calc_uniform_portfolio(price_change):
 			# TODO: add in transaction cost for reweighting to uniform portfolio
 			multiplier += price_change[i,j] * uniform_portfolio[j]
 		# 	unchanged_multiplier += price_change[i,j] * unchanged_uniform_portfolio[j]
-		# 	unchanged_uniform_portfolio[j] =  
-		# unchanged_uniform_portfolio 
+		# 	unchanged_uniform_portfolio[j] =
+		# unchanged_uniform_portfolio
 		uniform_portfolio_value *= multiplier
 	print('The uniform portfolio value with no transaction costs = ', uniform_portfolio_value)
 	return uniform_portfolio_value
@@ -135,8 +135,8 @@ def calc_optimal_portfolio(price_change, prefix):
 def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
-	fetch_data(start_time=t0,path='livedata/')
-	array = read_data('livedata/')
+	fetch_data(start_time=t0,path='live_data/')
+	array = read_data('live_data/')
 	pdb.set_trace()
 	data = array[:,-51:-1,:]
 	labels = array[:,-1:,:]
@@ -227,16 +227,9 @@ def get_specific_price_batch(prices, price_changes, start_index, hparams):
 	return p, p_c, start_index
 
 def get_next_price_batch(prices, price_changes, training_step, hparams):
-	#start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
+	start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
 	# start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
 	# Systematic uniform sampling of data
-	start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
+	#start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
 	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
 	return p, p_c, start_index
-
-
-
-
-
-
-
