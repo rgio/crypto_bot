@@ -138,8 +138,11 @@ def get_current_window():
 	fetch_data(start_time=t0,path='livedata/')
 	array = read_data('livedata/')
 	pdb.set_trace()
-	window = array[:,:-50,:]
-	return window
+	data = array[:,-51:-1,:]
+	labels = array[:,-1:,:]
+	labels = np.reshape(labels,(labels.shape[0],labels.shape[-1]))
+	labels = np.insert(labels,0,1,axis=0)#BTC
+	return data, labels
 
 def split_data(global_price_array,train_size,validation_size,test_size):
 	train = global_price_array[:,:train_size]
