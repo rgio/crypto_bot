@@ -10,8 +10,8 @@ import pdb
 from poloniex import Poloniex
 # from poloniex import Poloniex, Coach
 
-key = 'Z3FRTM17-3N17VQWH-L9W3PWMF-T4MC7JNW'
-secret = 'c65c99a9a94b034fc19569170308bc29c86eacc539fa5bf7b5d34714dce0c1ac4fd60309c710d0ddac7e8b6605e868ddaf557b9745442b50c30ad98d0c94be62'
+key = 'MRRIC3WC-9UX18G52-V46IOUH5-45VLK5VW'
+secret = 'b0cfae0d7a2c3a66067c2cd3c2807c28867dfecea57df84cd07d5c7773577b6248f019fa09955f4a90a0e976081f26b1515ebc58eed4e618941c5c737e6ab200'
 
 FETCH_URL = "https://poloniex.com/public?command=returnChartData&currencyPair=%s&start=%d&end=%d&period=300"
 TICKER_URL = "https://poloniex.com/public?command=returnTicker"
