@@ -18,7 +18,7 @@ import poloniex_api as pol
 # Global variable
 # change this to false to use most recent training run
 # change this to the switch the model that gets restored
-TIME_STAMP = "2018-02-22_10-31" 
+TIME_STAMP = False 
 
 # Helper functions
 def initialize_weights(path_to_model_dir):
