@@ -24,7 +24,9 @@ PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ET
    "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 COINS = ["BTC"]
 COINS.extend([pair.split('_')[1] for pair in PAIRS])
-PAIRS_DICT = {0:"BTC_BTS",1:"BTC_ZEC",2:"BTC_STRAT",3:"BTC_XEM",4:"BTC_STEEM",5:"BTC_LTC",6:"BTC_ETC",7:"BTC_XRP",8:"BTC_XMR",9:"BTC_DASH",10:"BTC_ETH"}
+PAIRS_DICT = {}
+for coin in COINS_INDICES:
+    PAIRS_DICT[COINS_INDICES[coin]]='BTC_'+coin
 PARAMS = ['high','open','volume']
 num_coins = len(PAIRS)+1
 
@@ -36,9 +38,6 @@ polo.Secret = secret
 # polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
 polo.public = Poloniex()
 polo.private = Poloniex(polo.Key, polo.Secret)
-new = [0]*21
-new[0]=0.5
-new[11]=0.5
 
 def get_new_portfolio(new_portfolio):
     rates = get_current_rates()
@@ -46,28 +45,48 @@ def get_new_portfolio(new_portfolio):
     portfolio_value = get_portfolio_value(rates,balances) # in BTC
     cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
     differences = np.array(new_portfolio) - np.array(cur_portfolio)
+    differences = differences[0]
+    reduced_portfolio_value = portfolio_value - np.sum(np.absolute(differences))*0.003*portfolio_value
+    print("cur_portfolio: %s" % cur_portfolio)
+    print("new_portfolio: %s" % new_portfolio)
     #place sell orders first
     for i in range(len(differences))[1:]:
         curr_pair = PAIRS_DICT[i]
+        curr_coin = curr_pair.split('_')[1]
         curr_rate = rates[curr_pair]['last']
-        if differences[0,i] < 0:
-            amount_btc = abs(differences[0,i]) * portfolio_value
+        if differences[i] < 0:
+            amount_btc = abs(differences[i]) * reduced_portfolio_value
             amount_coin = amount_btc / curr_rate
-            if amount_btc > 0.00012: # since there are minimum buy/ sell orders allowed 
+            #print("amount_btc = %s" % amount_btc)
+            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+            #pdb.set_trace()
+            if (amount_btc > 0.00011 and amount_coin <= balances[curr_coin]): # since there are minimum buy/ sell orders allowed, check if we have enough coin to sell 
+                print("Selling %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
                 #pdb.set_trace()  
                 place_sell_order(curr_pair,curr_rate,amount_coin)
-
-    time.sleep(15)#wait for sell orders to process
+    # TODO: have it check to see when all sell orders have completed
+    time.sleep(30)#wait for sell orders to process
     for i in range(len(differences))[1:]:
         curr_pair = PAIRS_DICT[i]
+        curr_coin = curr_pair.split('_')[1]
         curr_rate = rates[curr_pair]['last']
-        if differences[0,i] > 0:
-            amount_btc = differences[0,i] * portfolio_value
+        #pdb.set_trace()
+        if differences[i] > 0:
+            amount_btc = differences[i] * reduced_portfolio_value
             amount_coin = amount_btc / curr_rate
-            if amount_btc > 0.00012: # since there are minimum buy/ sell orders allowed 
+            #print("amount_btc = %s" % amount_btc)
+            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+            if (amount_btc > 0.00011 and amount_btc <= balances['BTC']): # since there are minimum buy/ sell orders allowed, check if we have enough BTC to buy 
+                print("Buying %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
                 #pdb.set_trace()
                 place_buy_order(curr_pair,curr_rate,amount_coin)
-    return portfolio_value
+    time.sleep(30) # let buy orders finish
+    rates = get_current_rates()
+    balances = get_balances()
+    portfolio_value = get_portfolio_value(rates, balances) 
+    return portfolio_value, reduced_portfolio_value
 
 #IN BTC
 def get_portfolio_value(rates,balances):

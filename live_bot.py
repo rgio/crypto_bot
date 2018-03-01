@@ -72,8 +72,8 @@ def main():
 			input_weights = pol.get_weights()
 			target_portfolio_weights = weights.eval(feed_dict={input_prices: data, labels: dummy_labels,
 				init_weights: input_weights, batch_size: 1, keep_prob: 1.0})
-			portfolio_value = pol.get_new_portfolio(target_portfolio_weights)
-			print("Trade completed. New portfolio value = %.8f\n" % portfolio_value)
+			portfolio_value, estimated_reduced_pv = pol.get_new_portfolio(target_portfolio_weights)
+			print("Trade completed.\nEst portfolio value = %.12f\nNew portfolio value = %.12f\n" % (estimated_reduced_pv, portfolio_value))
 			time.sleep(1800)
 
 if __name__ == '__main__':
