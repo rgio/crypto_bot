@@ -204,7 +204,7 @@ def get_data(array,window_size,stride):
 
 def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = hparams.geometric_decay/max_index	# Make p larger to favor more recent data
+	p = hparams.geometric_decay	# Make p larger to favor more recent data
 	k = np.random.geometric(p)
 	while k > max_index-1:
 		k = np.random.geometric(p)
