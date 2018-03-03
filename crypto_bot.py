@@ -2,13 +2,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# Imports of general code
 import datetime
 import tempfile
 import pathlib
 import pdb
+
 import numpy as np
 import tensorflow as tf
+from keras.callbacks import TensorBoard
 
 # Imports of our own code
 import hparams as hp
@@ -21,14 +22,30 @@ import pdb
 
 
 def main():
-	crypto_bot = CryptoBot()
+	hparams = hp.set_parameters()
+	crypto_bot = CryptoBot(hparams)
 
 
 
 class CryptoBot:
-	def __init__(self, hparams): # TODO: add directory as argument and have files structured in base directory
+	def __init__(self, hparams, tuning=False, hparam_str=None): # TODO: add directory as argument and have files structured in base directory
 		# Load training and eval data
 		# hparams = hp.set_hyperparameters()
+		if tuning:
+			hyperparam_str = 'hp'
+			basedir = 'tmp/tuning' + hparam_str
+		else:
+			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
+			basedir = 'tmp/output' + '/{timestamp}'
+
+		callback_log = TensorBoard(
+			log_dir=log_dir,
+			histogram_freq=0,
+			batch_size=32,
+			write_graph=True,
+			write_grads=False,
+			write_images=False)
+
 		try:
 			input_array = pdata.read_data()
 		except:
@@ -44,14 +61,16 @@ class CryptoBot:
 		validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], hparams.num_coins))
 		btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
 		validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
-		fn.check_path('tmp/validation')
-		opt_val_portfolio, opt_val_port_return = pdata.calc_optimal_portfolio(validation_labels, 'tmp/validation')
+		validation_path = basedir + '/validation'
+		fn.check_path(validation_path)
+		opt_val_portfolio, opt_val_port_return = pdata.calc_optimal_portfolio(validation_labels, validation_path)
 		test_data, test_labels = pdata.get_data(test, hparams.window_size, hparams.stride)
 		test_labels = np.reshape(test_labels, (test_labels.shape[0], hparams.num_coins))
 		btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
 		test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
-		fn.check_path('tmp/test')
-		opt_test_portfolio, opt_test_port_return = pdata.calc_optimal_portfolio(test_labels, 'tmp/test')
+		test_path = basedir + '/test'
+		fn.check_path(test_path)
+		opt_test_portfolio, opt_test_port_return = pdata.calc_optimal_portfolio(test_labels, test_path)
 
 		# Create the model
 		input_prices = tf.placeholder(tf.float32, [None, hparams.num_coins, hparams.window_size, hparams.num_input_channels])
@@ -88,14 +107,17 @@ class CryptoBot:
 		train_writer.add_graph(tf.get_default_graph())
 		saver = tf.train.Saver()
 		timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
-		with open('tmp/crypto_bot/most_recent_time_stamp.txt', 'w') as f:
+		timestamp_path = basedir + '/timestamps'
+		fn.check_path(timestamp_path)
+		timestamp_file = timestamp_path + '/timestamps.txt'
+		with open(timestamp_file, 'w') as f:
 			f.write('%s' % timestamp)
-		path_to_model_dir = 'tmp/crypto_bot/cnn_model_' + timestamp + '/'
+		path_to_model_dir = basedir + '/model'
 		fn.check_path(path_to_model_dir)
 		pathlib.Path(path_to_model_dir).mkdir(parents=True, exist_ok=True)
 		prnt.print_hyperparameters(hparams, path_to_model_dir)
-		path_to_final_model = path_to_model_dir + 'cnn_model.ckpt'
-		path_to_best_model = path_to_model_dir + 'cnn_best_model.ckpt'
+		path_to_final_model = path_to_model_dir + '/cnn_model.ckpt'
+		path_to_best_model = path_to_model_dir + '/cnn_best_model.ckpt'
 		best_val_value = 0.0 # used to save
 
 		# Random weights for 1st training step
@@ -106,6 +128,8 @@ class CryptoBot:
 		memory_array = np.random.rand(train_data.shape[0], hparams.num_coins+1)
 
 		# Run the training and testing
+		train_path = basedir + '/train'
+		fn.check_path(train_path)
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
 			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams)
@@ -119,7 +143,7 @@ class CryptoBot:
 					init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 				memory_array[batch[2]:batch[2]+hparams.batch_size] = input_weights
 				if i % 1000 == 0:
-					pdata.calc_optimal_portfolio(batch[1], 'tmp/train')
+					pdata.calc_optimal_portfolio(batch[1], train_path)
 					train_value = final_value.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 						init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: 1.0})
 					train_accuracy = accuracy.eval(feed_dict={input_prices: batch[0], labels: batch[1],
@@ -155,7 +179,7 @@ class CryptoBot:
 				labels: validation_labels,
 				init_weights: val_weights,
 				batch_size: validation_labels.shape[0],
-				keep_prob: 1.0}))
+				keep_prob: 1.0})
 			print(f'The accuracy (with val_weights) on the validation set is {self.validation_accuracy}')
 			final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
@@ -187,14 +211,14 @@ class CryptoBot:
 
 
 
-			"""while True:
-				data, labels = get_current_window()
-				print(data)
-				print(labels)
-				weights = weights.eval(feed_dict={input_prices: data, labels: labels, 
-					init_weights: input_weights, keep_prob: 1.0})
-				get_new_portfolio(weights)
-				time.sleep(1800)"""
+	"""while True:
+		data, labels = get_current_window()
+		print(data)
+		print(labels)
+		weights = weights.eval(feed_dict={input_prices: data, labels: labels, 
+			init_weights: input_weights, keep_prob: 1.0})
+		get_new_portfolio(weights)
+		time.sleep(1800)"""
 
 			# Proper validation test
 			# validation_weights = np.zeros((1, validation_labels.shape[1]))
