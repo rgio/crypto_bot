@@ -183,7 +183,7 @@ class CryptoBot:
 				init_weights: val_weights,
 				batch_size: validation_labels.shape[0],
 				keep_prob: 1.0})
-			print(f'The accuracy (with val_weights) on the validation set is {self.validation_accuracy}')
+			print('The accuracy (with val_weights) on the validation set is {0}'.format(self.validation_accuracy)
 			final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 			pvm = value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
