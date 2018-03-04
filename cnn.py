@@ -30,17 +30,17 @@ def cnn_model(x, init_weights, hparams, params):
 
 	# First convolution layer
 	with tf.name_scope('conv1'):
-		W_conv1 = weight_variable([1, hparams.len_conv1_filters, hparams.num_input_channels, hparams.num_conv1_features])
+		W_conv1 = weight_variable([1, hparams.conv1_filter_length, params.num_input_channels, hparams.num_conv1_features])
 		b_conv1 = bias_variable([hparams.num_conv1_features])
 		if hparams.conv_layers_separable:
-			P_conv1 = weight_variable([1, 1, hparams.num_conv1_features*hparams.num_input_channels, hparams.num_conv1_features])
+			P_conv1 = weight_variable([1, 1, hparams.num_conv1_features*params.num_input_channels, hparams.num_conv1_features])
 			h_conv1 = tf.nn.relu(separable_conv2d(input_price, W_conv1, P_conv1) + b_conv1)
 		else: # use standard convolution layer
 			h_conv1 = tf.nn.relu(conv2d(input_price, W_conv1) + b_conv1)
 		
 	# Second convolution layer
 	with tf.name_scope('conv2'):
-		W_conv2 = weight_variable([1, hparams.window_size-hparams.len_conv1_filters+1, hparams.num_conv1_features, hparams.num_conv2_features])
+		W_conv2 = weight_variable([1, hparams.window_size-hparams.conv1_filter_length+1, hparams.num_conv1_features, hparams.num_conv2_features])
 		b_conv2 = bias_variable([hparams.num_conv2_features])
 		if hparams.conv_layers_separable:
 			P_conv2 = weight_variable([1, 1, hparams.num_conv2_features*hparams.num_conv1_features, hparams.num_conv2_features])
@@ -71,23 +71,23 @@ def cnn_model(x, init_weights, hparams, params):
 			final_layer = tf.reshape(h_conv3, [-1, hparams.num_coins])
 	else:
 		# Flatten the 2nd convolution layer prior to the fully connected layers
-		h_conv2_weights_dropout_flat = tf.reshape(h_conv2_weights_dropout, [-1, hparams.num_coins*(hparams.num_conv2_features+1)])
+		h_conv2_weights_dropout_flat = tf.reshape(h_conv2_weights_dropout, [-1, params.num_coins*(hparams.num_conv2_features+1)])
 		if hparams.model_ending == 'one_fc_layer':
 			# First and only fully connected layer
 			with tf.name_scope('one_fc_layer_fc1'):
-				W_fc1 = weight_variable([hparams.num_coins*(hparams.num_conv2_features+1), hparams.num_coins])
-				b_fc1 = weight_variable([hparams.num_coins])
+				W_fc1 = weight_variable([params.num_coins*(hparams.num_conv2_features+1), params.num_coins])
+				b_fc1 = weight_variable([params.num_coins])
 				final_layer = tf.nn.relu(tf.matmul(h_conv2_weights_dropout_flat, W_fc1) + b_fc1)		 
 		elif hparams.model_ending == 'two_fc_layers': 
 			# First fully connected layer
 			with tf.name_scope('two_fc_layers_fc1'):
-				W_fc1 = weight_variable([hparams.num_coins*(hparams.num_conv2_features+1), hparams.num_fc1_neurons])
+				W_fc1 = weight_variable([params.num_coins*(hparams.num_conv2_features+1), hparams.num_fc1_neurons])
 				b_fc1 = weight_variable([hparams.num_fc1_neurons])
 				h_fc1 = tf.nn.relu(tf.matmul(h_conv2_weights_dropout_flat, W_fc1) + b_fc1)
 			# Second and last fully connected layer 
 			with tf.name_scope('two_fc_layers_fc2'):
-				W_fc2 = weight_variable([hparams.num_fc1_neurons, hparams.num_coins])
-				b_fc2 = bias_variable([hparams.num_coins])
+				W_fc2 = weight_variable([hparams.num_fc1_neurons, params.num_coins])
+				b_fc2 = bias_variable([params.num_coins])
 				final_layer = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
 
 	# Add in a bias for cash to the final layer before taking softmax to get portfolio weights

@@ -37,6 +37,9 @@ def set_hparams() -> HParams:
 		num_conv2_features=20,
 		num_fc1_neurons=12,
 		dropout_keep_prob=0.5,
+		conv_layers_separable=True,
+		model_ending='two_fc_layers',
+		batch_sampling_method='random_geometric',
 		# start_time=None,
 		# end_time=None #don't optimize
 		# num_fc2_neurons = len(hparams.coin_pairs) + 1 (+1 needed for BTC)
@@ -102,7 +105,7 @@ def run_bot(window_size,
 def gen_hparam_str(hparam_dict) -> str:
 	hparam_str = '/hparams'
 	for hparam, value in hparam_dict.items():
-		hparam_str += ('_{0}-{1}'.format(hparam, value)
+		hparam_str += ('_{0}-{1}'.format(hparam, value))
 	return hparam_str
 
 

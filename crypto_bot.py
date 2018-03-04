@@ -129,6 +129,7 @@ class CryptoBot:
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
 			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
+			#pdb.set_trace()
 			input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[:hparams.batch_size] = input_weights
@@ -183,7 +184,7 @@ class CryptoBot:
 				init_weights: val_weights,
 				batch_size: validation_labels.shape[0],
 				keep_prob: 1.0})
-			print('The accuracy (with val_weights) on the validation set is {0}'.format(self.validation_accuracy)
+			print('The accuracy (with val_weights) on the validation set is {0}'.format(self.validation_accuracy))
 			final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 			pvm = value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
