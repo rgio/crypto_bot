@@ -25,13 +25,10 @@ def main():
 	print('Best hyperparameters:\n{optimizer.best_hparams}')
 
 
-def set_parameters() -> HParams:
+def set_hparams() -> HParams:
 	hparams = HParams(
-		coin_pairs=["BTC_BTS", "BTC_ZEC", "BTC_STRAT", "BTC_XEM", "BTC_STEEM", "BTC_LTC", "BTC_ETC", "BTC_XRP",
-					"BTC_XMR", "BTC_DASH", "BTC_ETH", "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB",
-					"BTC_MAID", "BTC_NXT", "BTC_BCN"],
 		# 20 coins (no including cash = BTC)
-		num_input_channels=4,  # high, open, volume, dp/dt
+		 # high, open, volume, dp/dt
 		window_size=50,
 		stride=1,
 		batch_size=100,
@@ -48,8 +45,16 @@ def set_parameters() -> HParams:
 		# end_time=None #don't optimize
 		# num_fc2_neurons = len(hparams.coin_pairs) + 1 (+1 needed for BTC)
 	)
-	hparams.add_hparam("num_coins", len(hparams.coin_pairs))
 	return hparams
+
+
+def set_params() -> HParams:
+	params = HParams(coin_pairs = ["BTC_BTS", "BTC_ZEC", "BTC_STRAT", "BTC_XEM", "BTC_STEEM", "BTC_LTC", "BTC_ETC",
+								   "BTC_XRP", "BTC_XMR", "BTC_DASH", "BTC_ETH", "BTC_STR", "BTC_LSK", "BTC_DOGE",
+								   "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"],
+					 num_input_channels=4,)
+	params.add_hparam("num_coins", len(params.coin_pairs))
+	return params
 
 
 def init_search_space_dict() -> dict:
@@ -86,7 +91,6 @@ def run_bot(window_size,
 			num_conv2_features,
 			num_fc1_neurons,
 			dropout_keep_prob) -> float:
-	ipdb.set_trace()
 	hparams = HParams(**inspect.getargvalues(inspect.currentframe())[3])
 	hparam_dict = hparams.values()
 	hparam_str = gen_hparam_str(hparam_dict)

@@ -22,13 +22,13 @@ import pdb
 
 
 def main():
-	hparams = hp.set_parameters()
+	hparams = hp.set_hparams()
 	crypto_bot = CryptoBot(hparams)
 
 
 
 class CryptoBot:
-	def __init__(self, hparams, tuning=False, hparam_str=None): # TODO: add directory as argument and have files structured in base directory
+	def __init__(self, hparams, params=hp.set_params(), tuning=False, hparam_str=None): # TODO: add directory as argument and have files structured in base directory
 		# Load training and eval data
 		# hparams = hp.set_hyperparameters()
 		if tuning:
@@ -56,14 +56,14 @@ class CryptoBot:
 		train, validation, test = pdata.split_data(input_array, train_size, validation_size, test_size)
 		train_data, train_labels = pdata.get_data(train, hparams.window_size, hparams.stride)
 		validation_data, validation_labels = pdata.get_data(validation, hparams.window_size, hparams.stride)
-		validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], hparams.num_coins))
+		validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], params.num_coins))
 		btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
 		validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
 		validation_path = basedir + '/validation'
 		fn.check_path(validation_path)
 		opt_val_portfolio, opt_val_port_return = pdata.calc_optimal_portfolio(validation_labels, validation_path)
 		test_data, test_labels = pdata.get_data(test, hparams.window_size, hparams.stride)
-		test_labels = np.reshape(test_labels, (test_labels.shape[0], hparams.num_coins))
+		test_labels = np.reshape(test_labels, (test_labels.shape[0], params.num_coins))
 		btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
 		test_labels = np.insert(test_labels, 0, btc_btc, axis=1)
 		test_path = basedir + '/test'
@@ -71,13 +71,13 @@ class CryptoBot:
 		opt_test_portfolio, opt_test_port_return = pdata.calc_optimal_portfolio(test_labels, test_path)
 
 		# Create the model
-		input_prices = tf.placeholder(tf.float32, [None, hparams.num_coins, hparams.window_size, hparams.num_input_channels])
-		labels = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
-		init_weights = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
+		input_prices = tf.placeholder(tf.float32, [None, params.num_coins, hparams.window_size, params.num_input_channels])
+		labels = tf.placeholder(tf.float32, [None, params.num_coins+1])
+		init_weights = tf.placeholder(tf.float32, [None, params.num_coins+1])
 		batch_size = tf.placeholder(tf.int32)
 
 		# Build the graph
-		weights, keep_prob = cnn.cnn_model(input_prices, init_weights, hparams)
+		weights, keep_prob = cnn.cnn_model(input_prices, init_weights, hparams, params)
 
 		# Define the loss
 		with tf.name_scope('loss'):
@@ -119,24 +119,24 @@ class CryptoBot:
 		best_val_value = 0.0 # used to save
 
 		# Random weights for 1st training step
-		random_weights = np.random.rand(hparams.batch_size, hparams.num_coins+1)
+		random_weights = np.random.rand(hparams.batch_size, params.num_coins+1)
 		val_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
 
 		# Stores our portfolio weights
-		memory_array = np.random.rand(train_data.shape[0], hparams.num_coins+1)
+		memory_array = np.random.rand(train_data.shape[0], params.num_coins+1)
 
 		# Run the training and testing
 		train_path = basedir + '/train'
 		fn.check_path(train_path)
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
-			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams)
+			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
 			input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[:hparams.batch_size] = input_weights
 			for i in range(1, hparams.num_training_steps):
-				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams)
-				input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams)
+				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams, params)
+				input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams, params)
 				input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1],
 					init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 				memory_array[batch[2]:batch[2]+hparams.batch_size] = input_weights
