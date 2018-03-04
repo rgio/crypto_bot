@@ -148,12 +148,12 @@ class HyperparameterOptimizer:
 
 
 	def optimize(self) -> dict:
-		# We can optimize more of the arguments to gp_minimize later.
+		# TODO: optimize arguments to gp_minimize
 		# Documentation: https://scikit-optimize.github.io/optimizer/index.html
 		results = gp_minimize(func=run_bot,
 							  dimensions=self.search_space_list,
 							  acq_func='EI',
-							  n_calls=40,
+							  n_calls=100,
 							  # we can change this to "EIps" for 'Expected improvement per second' to account for compute time
 							  x0=self.hparam_list)  # we can mess with the default arguments later
 		best_hparam_list = results.x
