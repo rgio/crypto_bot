@@ -3,11 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import inspect
-import ipdb
 
-# Imports of general code
 from tensorflow.contrib.training import HParams
-from keras.callbacks import TensorBoard
 from skopt import gp_minimize, forest_minimize
 import skopt.space as space
 from skopt.utils import use_named_args
@@ -97,7 +94,7 @@ def run_bot(window_size,
 	print(hparam_str)
 	bot = crypto_bot.CryptoBot(hparams, tuning=True, hparam_str=hparam_str)
 	cost = -bot.get_value()
-	# TODO: figure out another method of logging because this has to be a static method
+	# TODO: figure out another method of logging because this can't be a part of the class
 	"""if cost < self.lowest_cost:
 		self.lowest_cost = cost
 		crypto_bot.CryptoBot(hparams, tuning=True, hparam_str='/best')"""

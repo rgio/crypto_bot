@@ -5,7 +5,7 @@ from __future__ import print_function
 import datetime
 import tempfile
 import pathlib
-import pdb
+import ipdb
 
 import numpy as np
 import tensorflow as tf
@@ -18,13 +18,11 @@ import cnn
 import loss_value as lv
 import print_results as prnt
 import functions as fn
-import pdb
 
 
 def main():
 	hparams = hp.set_hparams()
 	crypto_bot = CryptoBot(hparams)
-
 
 
 class CryptoBot:
