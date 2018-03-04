@@ -21,12 +21,12 @@ def conv2d(x, W):
 def separable_conv2d(x, W, P):
 	return tf.nn.separable_conv2d(x, W, P, strides=[1, 1, 1, 1], padding='VALID')
 
-def cnn_model(x, init_weights, hparams):
+def cnn_model(x, init_weights, hparams, params):
 	"""Low level model for a CNN."""
 
 	# Reshape the input to use as our first feature layer
 	with tf.name_scope('reshape_input'):
-		input_price = tf.reshape(x, [-1, hparams.num_coins, hparams.window_size, hparams.num_input_channels])
+		input_price = tf.reshape(x, [-1, params.num_coins, hparams.window_size, params.num_input_channels])
 
 	# First convolution layer
 	with tf.name_scope('conv1'):
@@ -49,7 +49,7 @@ def cnn_model(x, init_weights, hparams):
 			h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 
 	# Add in previous weights as a feature
-	past_weights = tf.reshape(init_weights[:,1:], [-1, hparams.num_coins, 1, 1])
+	past_weights = tf.reshape(init_weights[:,1:], [-1, params.num_coins, 1, 1])
 	h_conv2_weights = tf.concat([h_conv2, past_weights], axis=3)
 
 	# Dropout on 2nd convolution layer during training

@@ -205,7 +205,7 @@ def get_data(array,window_size,stride):
 
 def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = hparams.geometric_decay/max_index	# Make p larger to favor more recent data
+	p = hparams.geometric_decay	# Make p larger to favor more recent data
 	k = np.random.geometric(p)
 	while k > max_index-1:
 		k = np.random.geometric(p)
@@ -217,10 +217,10 @@ def get_random_batch_index_uniform(max_index):
 	start_index = np.random.random_integers(1, max_index-1)
 	return start_index
 
-def get_specific_price_batch(prices, price_changes, start_index, hparams):
+def get_specific_price_batch(prices, price_changes, start_index, hparams, params):
 	p = prices[start_index:start_index+hparams.batch_size,:,:]
 	p_c = price_changes[start_index:start_index+hparams.batch_size,:,:]
-	p_c = np.reshape(p_c, (hparams.batch_size, hparams.num_coins))
+	p_c = np.reshape(p_c, (hparams.batch_size, params.num_coins))
 	btc_btc = np.ones( (1, hparams.batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	return p, p_c, start_index
