@@ -32,14 +32,12 @@ class CryptoBot:
 		# Load training and eval data
 		# hparams = hp.set_hyperparameters()
 		if tuning:
-			hyperparam_str = 'hp'
 			basedir = 'tmp/tuning' + hparam_str
 		else:
 			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
 			basedir = 'tmp/output' + '/{timestamp}'
 
 		callback_log = TensorBoard(
-			log_dir=log_dir,
 			histogram_freq=0,
 			batch_size=32,
 			write_graph=True,
@@ -185,6 +183,7 @@ class CryptoBot:
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 			pvm = value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
+			self.final_pvm = final_pvm
 			portfolio_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 			prnt.print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'validation')
@@ -206,8 +205,8 @@ class CryptoBot:
 			prnt.print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
 			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))
 
-	def get_cost(self):
-		return self.validation_accuracy
+	def get_value(self):
+		return self.final_value
 
 
 
