@@ -24,7 +24,9 @@ PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ET
    "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 COINS = ["BTC"]
 COINS.extend([pair.split('_')[1] for pair in PAIRS])
-PAIRS_DICT = {0:"BTC_BTS",1:"BTC_ZEC",2:"BTC_STRAT",3:"BTC_XEM",4:"BTC_STEEM",5:"BTC_LTC",6:"BTC_ETC",7:"BTC_XRP",8:"BTC_XMR",9:"BTC_DASH",10:"BTC_ETH"}
+PAIRS_DICT = {}
+for coin in COINS_INDICES:
+    PAIRS_DICT[COINS_INDICES[coin]]='BTC_'+coin
 PARAMS = ['high','open','volume']
 num_coins = len(PAIRS)+1
 
@@ -36,9 +38,6 @@ polo.Secret = secret
 # polo.private = Poloniex(polo.Key, polo.Secret, coach=myCoach)
 polo.public = Poloniex()
 polo.private = Poloniex(polo.Key, polo.Secret)
-new = [0]*21
-new[0]=0.5
-new[11]=0.5
 
 def get_new_portfolio(new_portfolio):
     rates = get_current_rates()
@@ -46,25 +45,48 @@ def get_new_portfolio(new_portfolio):
     portfolio_value = get_portfolio_value(rates,balances) # in BTC
     cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
     differences = np.array(new_portfolio) - np.array(cur_portfolio)
+    differences = differences[0]
+    reduced_portfolio_value = portfolio_value - np.sum(np.absolute(differences))*0.003*portfolio_value
+    print("cur_portfolio: %s" % cur_portfolio)
+    print("new_portfolio: %s" % new_portfolio)
     #place sell orders first
-    for i in range(len(differences)):
+    for i in range(len(differences))[1:]:
         curr_pair = PAIRS_DICT[i]
+        curr_coin = curr_pair.split('_')[1]
         curr_rate = rates[curr_pair]['last']
         if differences[i] < 0:
-            amount_btc = abs(differences[i]) * portfolio_value
+            amount_btc = abs(differences[i]) * reduced_portfolio_value
             amount_coin = amount_btc / curr_rate
-            place_sell_order(curr_pair,curr_rate,amount_coin)
-
-            #TODO make sell order
-    time.sleep(15)#wait for sell orders to process        
-    for i in range(len(differences)):
+            #print("amount_btc = %s" % amount_btc)
+            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+            #pdb.set_trace()
+            if (amount_btc > 0.00011 and amount_coin <= balances[curr_coin]): # since there are minimum buy/ sell orders allowed, check if we have enough coin to sell 
+                print("Selling %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
+                #pdb.set_trace()  
+                place_sell_order(curr_pair,curr_rate,amount_coin)
+    # TODO: have it check to see when all sell orders have completed
+    time.sleep(30)#wait for sell orders to process
+    for i in range(len(differences))[1:]:
         curr_pair = PAIRS_DICT[i]
+        curr_coin = curr_pair.split('_')[1]
         curr_rate = rates[curr_pair]['last']
+        #pdb.set_trace()
         if differences[i] > 0:
-            amount_btc = differences[i] * portfolio_value
+            amount_btc = differences[i] * reduced_portfolio_value
             amount_coin = amount_btc / curr_rate
-            place_buy_order(curr_pair,curr_rate,amount_coin)
-    return portfolio_value
+            #print("amount_btc = %s" % amount_btc)
+            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+            if (amount_btc > 0.00011 and amount_btc <= balances['BTC']): # since there are minimum buy/ sell orders allowed, check if we have enough BTC to buy 
+                print("Buying %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
+                #pdb.set_trace()
+                place_buy_order(curr_pair,curr_rate,amount_coin)
+    time.sleep(30) # let buy orders finish
+    rates = get_current_rates()
+    balances = get_balances()
+    portfolio_value = get_portfolio_value(rates, balances) 
+    return portfolio_value, reduced_portfolio_value
 
 #IN BTC
 def get_portfolio_value(rates,balances):
@@ -80,7 +102,7 @@ def get_weights(rates=None,balances=None,portfolio_value=None):
     if(rates is None):
         rates = get_current_rates()
     if(balances is None):
-        balances = get_balances
+        balances = get_balances()
     if(portfolio_value is None):
         portfolio_value = get_portfolio_value(rates,balances)
     weights = [0]*num_coins
@@ -91,9 +113,11 @@ def get_weights(rates=None,balances=None,portfolio_value=None):
             rate = rates["BTC_"+coin]['last']
             coin_value = rate*balances[coin]
         weights[COINS_INDICES[coin]]=coin_value/portfolio_value
+    weights = np.array(weights, dtype=np.float32)
+    weights = np.reshape(weights, (1, weights.shape[0]))
     return weights
 
- 
+
 def place_sell_order(pair,rate,amount):
     polo.private.sell(pair,rate,amount)
 
@@ -128,7 +152,7 @@ def fetch_data(start_time=1482123600,end_time=9999999999,path=DATA_DIR):
         outf = open(datafile, "w")
         df.to_csv(outf, index=False, columns=COLUMNS)
         outf.close()
-        print('completed: {pair}')
+        print('completed: %s' % pair)
         #time.sleep(30)
 
 
@@ -167,18 +191,18 @@ def get_data(pair):
     outf.close()
     print("Finish.")
     time.sleep(30)
- 
+
 def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
     return time.mktime(time.strptime(datestr, format))
- 
+
 # class poloniex:
 #     def __init__(self, APIKey, Secret):
 #         self.APIKey = APIKey
 #         self.Secret = Secret
- 
+
 #     def post_process(self, before):
 #         after = before
- 
+
 #         # Add timestamps if there isnt one but is a datetime
 #         if('return' in after):
 #             if(isinstance(after['return'], list)):
@@ -186,11 +210,11 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #                     if(isinstance(after['return'][x], dict)):
 #                         if('datetime' in after['return'][x] and 'timestamp' not in after['return'][x]):
 #                             after['return'][x]['timestamp'] = float(createTimeStamp(after['return'][x]['datetime']))
-                           
+
 #         return after
- 
+
 #     def api_query(self, command, req={}):
- 
+
 #         if(command == "returnTicker" or command == "return24Volume"):
 #             ret = urllib2.urlopen(urllib2.Request('https://poloniex.com/public?command=' + command))
 #             return json.loads(ret.read())
@@ -204,37 +228,37 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #             req['command'] = command
 #             req['nonce'] = int(time.time()*1000)
 #             post_data = urllib.urlencode(req)
- 
+
 #             sign = hmac.new(self.Secret, post_data, hashlib.sha512).hexdigest()
 #             headers = {
 #                 'Sign': sign,
 #                 'Key': self.APIKey
 #             }
- 
+
 #             ret = urllib2.urlopen(urllib2.Request('https://poloniex.com/tradingApi', post_data, headers))
 #             jsonRet = json.loads(ret.read())
 #             return self.post_process(jsonRet)
- 
- 
+
+
 #     def returnTicker(self):
 #         return self.api_query("returnTicker")
- 
+
 #     def return24Volume(self):
 #         return self.api_query("return24Volume")
- 
+
 #     def returnOrderBook (self, currencyPair):
 #         return self.api_query("returnOrderBook", {'currencyPair': currencyPair})
- 
+
 #     def returnMarketTradeHistory (self, currencyPair):
 #         return self.api_query("returnMarketTradeHistory", {'currencyPair': currencyPair})
- 
- 
+
+
 #     # Returns all of your balances.
 #     # Outputs:
 #     # {"BTC":"0.59098578","LTC":"3.31117268", ... }
 #     def returnBalances(self):
 #         return self.api_query('returnBalances')
- 
+
 #     # Returns your open orders for a given market, specified by the "currencyPair" POST parameter, e.g. "BTC_XCP"
 #     # Inputs:
 #     # currencyPair  The currency pair e.g. "BTC_XCP"
@@ -246,8 +270,8 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #     # total         Total value of order (price * quantity)
 #     def returnOpenOrders(self,currencyPair):
 #         return self.api_query('returnOpenOrders',{"currencyPair":currencyPair})
- 
- 
+
+
 #     # Returns your trade history for a given market, specified by the "currencyPair" POST parameter
 #     # Inputs:
 #     # currencyPair  The currency pair e.g. "BTC_XCP"
@@ -259,7 +283,7 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #     # type          sell or buy
 #     def returnTradeHistory(self,currencyPair):
 #         return self.api_query('returnTradeHistory',{"currencyPair":currencyPair})
- 
+
 #     # Places a buy order in a given market. Required POST parameters are "currencyPair", "rate", and "amount". If successful, the method will return the order number.
 #     # Inputs:
 #     # currencyPair  The curreny pair
@@ -269,7 +293,7 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #     # orderNumber   The order number
 #     def buy(self,currencyPair,rate,amount):
 #         return self.api_query('buy',{"currencyPair":currencyPair,"rate":rate,"amount":amount})
- 
+
 #     # Places a sell order in a given market. Required POST parameters are "currencyPair", "rate", and "amount". If successful, the method will return the order number.
 #     # Inputs:
 #     # currencyPair  The curreny pair
@@ -279,7 +303,7 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #     # orderNumber   The order number
 #     def sell(self,currencyPair,rate,amount):
 #         return self.api_query('sell',{"currencyPair":currencyPair,"rate":rate,"amount":amount})
- 
+
 #     # Cancels an order you have placed in a given market. Required POST parameters are "currencyPair" and "orderNumber".
 #     # Inputs:
 #     # currencyPair  The curreny pair
@@ -288,7 +312,7 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 #     # succes        1 or 0
 #     def cancel(self,currencyPair,orderNumber):
 #         return self.api_query('cancelOrder',{"currencyPair":currencyPair,"orderNumber":orderNumber})
- 
+
 #     # Immediately places a withdrawal for a given currency, with no email confirmation. In order to use this method, the withdrawal privilege must be enabled for your API key. Required POST parameters are "currency", "amount", and "address". Sample output: {"response":"Withdrew 2398 NXT."}
 #     # Inputs:
 #     # currency      The currency to withdraw

@@ -137,11 +137,12 @@ def get_current_window():
 	t0 = t-(100000)
 	fetch_data(start_time=t0,path='live_data/')
 	array = read_data('live_data/')
-	pdb.set_trace()
+	array = array.astype(np.float32)
 	data = array[:,-51:-1,:]
-	labels = array[:,-1:,:]
-	labels = np.reshape(labels,(labels.shape[0],labels.shape[-1]))
+	data = np.reshape(data, (1, data.shape[0], data.shape[1], data.shape[2]))
+	labels = array[:,-1:,0]
 	labels = np.insert(labels,0,1,axis=0)#BTC
+	labels = labels.T
 	return data, labels
 
 def split_data(global_price_array,train_size,validation_size,test_size):
@@ -213,7 +214,7 @@ def get_random_batch_index_geometric(max_index, hparams):
 
 def get_random_batch_index_uniform(max_index):
 	# Stochastic sampling of uniform distribution
-	start_index = np.random.random_integers(0, max_index-1)
+	start_index = np.random.random_integers(1, max_index-1)
 	return start_index
 
 def get_specific_price_batch(prices, price_changes, start_index, hparams, params):
@@ -222,14 +223,14 @@ def get_specific_price_batch(prices, price_changes, start_index, hparams, params
 	p_c = np.reshape(p_c, (hparams.batch_size, params.num_coins))
 	btc_btc = np.ones( (1, hparams.batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
-	#print("PSHAPE")
-	#print(prices.shape)
 	return p, p_c, start_index
 
-def get_next_price_batch(prices, price_changes, training_step, hparams, params):
-	start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
-	# start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
-	# Systematic uniform sampling of data
-	#start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
-	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams, params)
+def get_next_price_batch(prices, price_changes, training_step, hparams):
+	if hparams.batch_sampling_method == 'random_geometric':
+		start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
+	elif hparams.batch_sampling_method == 'random_uniform':
+		start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
+	elif hparams.batch_sampling_method == 'systematic_uniform':
+		start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
+	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
 	return p, p_c, start_index
