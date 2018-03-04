@@ -102,7 +102,7 @@ def run_bot(window_size,
 def gen_hparam_str(hparam_dict) -> str:
 	hparam_str = '/hparams'
 	for hparam, value in hparam_dict.items():
-		hparam_str += (f'_{hparam}-{value}')
+		hparam_str += ('_{0}-{1}'.format(hparam, value)
 	return hparam_str
 
 
