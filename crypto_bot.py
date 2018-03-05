@@ -15,6 +15,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 import pdb
+import pickle
 
 # Imports of our own code
 import hparams as hp
@@ -163,6 +164,9 @@ class CryptoBot:
 					if (portfolio_value > best_val_value):
 						save_path_best_model = saver.save(sess, path_to_best_model) 
 						best_val_value = portfolio_value
+						models_dict = get_models_dict()
+						models_dict[best_val_value] = save_path_best_model
+						set_models_dict(models_dict)
 						np.savetxt(path_to_model_dir + 'proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 						print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
 					train_step.run(feed_dict={input_prices: batch[0], labels: batch[1],
@@ -213,6 +217,18 @@ class CryptoBot:
 
 	def get_value(self):
 		return self.final_value
+
+	def get_models_dict(self):
+		try:
+			with open('models_dict.pickle', 'rb') as handle:
+    			return pickle.load(handle)
+    	except:
+    		return {}
+
+    def set_models_dict(d):
+		with open('models_dict.pickle', 'wb') as handle:
+			pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 
 if __name__ == '__main__':
