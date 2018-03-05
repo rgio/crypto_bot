@@ -51,7 +51,8 @@ def set_params() -> HParams:
 	params = HParams(coin_pairs = ["BTC_BTS", "BTC_ZEC", "BTC_STRAT", "BTC_XEM", "BTC_STEEM", "BTC_LTC", "BTC_ETC",
 								   "BTC_XRP", "BTC_XMR", "BTC_DASH", "BTC_ETH", "BTC_STR", "BTC_LSK", "BTC_DOGE",
 								   "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"],
-					 num_input_channels=5,)
+					 num_input_channels=5,
+					 live_bot_num_models=5,)
 	params.add_hparam("num_coins", len(params.coin_pairs))
 	return params
 
