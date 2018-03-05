@@ -37,7 +37,7 @@ class CryptoBot:
 			basedir = 'tmp/tuning' + hparam_str
 		else:
 			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
-			basedir = 'tmp/output' + '/{timestamp}'
+			basedir = 'tmp/output' + ('/%s'% timestamp)
 
 		callback_log = TensorBoard(
 			histogram_freq=0,
@@ -172,7 +172,7 @@ class CryptoBot:
 			save_path_final_model = saver.save(sess, path_to_final_model)
 			print('The final model weights are saved in %s' % save_path_final_model)
 
-			# Print the validation results
+			"""# Print the validation results
 			random_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
 			input_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 					init_weights: random_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
@@ -209,7 +209,7 @@ class CryptoBot:
 			portfolio_weights = weights.eval(feed_dict={input_prices: test_data, labels: test_labels,
 				init_weights: input_weights, batch_size: test_labels.shape[0], keep_prob: 1.0})
 			prnt.print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
-			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))
+			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))"""
 
 	def get_value(self):
 		return self.final_value
