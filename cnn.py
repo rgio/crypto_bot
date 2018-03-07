@@ -7,6 +7,18 @@ import numpy as np
 import tensorflow as tf
 import pdb
 
+
+def variable_summaries(var):
+	with tf.name_scope('summaries'):
+		mean = tf.reduce_mean(var)
+		tf.summary.scalar('mean', mean)
+		with tf.name_scope('stddev'):
+			stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+		tf.summary.scalar('stddev', stddev)
+		tf.summary.scalar('max', tf.reduce_max(var))
+		tf.summary.histogram('histogram', var)
+
+
 def weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.1)
 	return tf.Variable(initial)
@@ -30,7 +42,7 @@ def cnn_model(x, init_weights, hparams, params):
 
 	# First convolution layer
 	with tf.name_scope('conv1'):
-		W_conv1 = weight_variable([1, hparams.len_conv1_filters, hparams.num_input_channels, hparams.num_conv1_features])
+		W_conv1 = weight_variable([1, hparams., hparams.num_input_channels, hparams.num_conv1_features])
 		b_conv1 = bias_variable([hparams.num_conv1_features])
 		if hparams.conv_layers_separable:
 			P_conv1 = weight_variable([1, 1, hparams.num_conv1_features*hparams.num_input_channels, hparams.num_conv1_features])

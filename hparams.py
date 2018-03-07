@@ -76,7 +76,7 @@ def init_search_space_list() -> list:
 
 
 @use_named_args(dimensions=init_search_space_list())
-def run_bot(window_size,
+def run_bot(window_size, # TODO: figure out how to avoid hardcoding these
 			stride,
 			batch_size,
 			num_training_steps,
@@ -165,6 +165,7 @@ class HyperparameterOptimizer:
 
 if __name__ == '__main__':
 	main()
+
 		batch_sampling_method='random_geometric', # options: random_geometric, random_uniform, systematic_uniform in price_data.py
 		num_training_steps=200000,
 		learning_rate=2e-4,
@@ -182,4 +183,3 @@ if __name__ == '__main__':
 		)
 	hparams.add_hparam("num_coins", len(hparams.coin_pairs))	
 	return hparams
-
