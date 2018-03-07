@@ -42,7 +42,7 @@ def cnn_model(x, init_weights, hparams, params):
 
 	# First convolution layer
 	with tf.name_scope('conv1'):
-		W_conv1 = weight_variable([1, hparams., hparams.num_input_channels, hparams.num_conv1_features])
+		W_conv1 = weight_variable([1, hparams.len_conv1_filters, hparams.num_input_channels, hparams.num_conv1_features])
 		b_conv1 = bias_variable([hparams.num_conv1_features])
 		if hparams.conv_layers_separable:
 			P_conv1 = weight_variable([1, 1, hparams.num_conv1_features*hparams.num_input_channels, hparams.num_conv1_features])
