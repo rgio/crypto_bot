@@ -23,6 +23,7 @@ import cnn
 import loss_value as lv
 import print_results as prnt
 import functions as fn
+import poloniex_api as pnx
 
 def main():
 	hparams = hp.set_hparams()
@@ -30,7 +31,7 @@ def main():
 
 
 class CryptoBot:
-	def __init__(self, hparams, params=hp.set_params(), tuning=False, hparam_str=None): # TODO: add directory as argument and have files structured in base directory
+	def __init__(self, hparams, params=hp.set_params(), test=False, tuning=False, hparam_str=None):
 		# Load training and eval data
 		# hparams = hp.set_hyperparameters()
 		if tuning:
@@ -47,10 +48,17 @@ class CryptoBot:
 			write_images=False)
 
 		try:
-			input_array = pdata.read_data()
+			if test:
+				input_array = pdata.read_data('data/test/')
+			else:
+				input_array = pdata.read_data()
 		except:
-			pdata.fetch_data()
-			input_array = pdata.read_data()
+			if test:
+				pnx.fetch_data(test=True)
+				input_array = pdata.read_data(test=True)
+			else:
+				pdata.fetch_data()
+				input_array = pdata.read_data()
 		total_time_steps = input_array.shape[1]
 		train_size = int(total_time_steps*0.7)
 		validation_size = int(total_time_steps*0.15)

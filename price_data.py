@@ -7,11 +7,16 @@ import numpy as np
 import csv
 import pdb
 import time
-from poloniex_api import *
+import poloniex_api as pnx
 
 global_price_array = []
-def read_data(directory='data/'):
+DEFAULT_DIRECTORY = 'data/'
+
+
+def read_data(directory=DEFAULT_DIRECTORY):
 	# if we have already calculated the global price array, read it from txt
+	# TODO: The second line of the try statement can never be executed and the except clause is executed no matter what.
+	# TODO: Maybe we can remove 'raise Exception('err')'? This syntax is confusing and exception handling can be expensive
 	try:
 		raise Exception('err')
 		global_price_array = np.genfromtxt('global_price')
@@ -135,7 +140,7 @@ def calc_optimal_portfolio(price_change, prefix):
 def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
-	fetch_data(start_time=t0,path='live_data/')
+	pnx.fetch_data(start_time=t0,path='live_data/')
 	array = read_data('live_data/')
 	array = array.astype(np.float32)
 	data = array[:,-51:-1,:]
