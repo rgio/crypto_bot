@@ -12,6 +12,8 @@ import datetime
 import tempfile
 import pathlib
 import argparse
+import json
+
 import numpy as np
 import tensorflow as tf
 import pdb
@@ -25,20 +27,32 @@ import print_results as prnt
 import functions as fn
 import poloniex_api as pnx
 
+
 def main():
 	hparams = hp.set_hparams()
 	crypto_bot = CryptoBot(hparams)
 
 
 class CryptoBot:
-	def __init__(self, hparams, params=hp.set_params(), test=False, tuning=False, hparam_str=None):
+	def __init__(self, hparams, params=hp.set_params(), test=False, tuning=False):
 		# Load training and eval data
 		# hparams = hp.set_hyperparameters()
+		timestamp = datetime.datetime.now().strftime('%Y%m%d_%H-%M-%S')
 		if tuning:
-			basedir = 'tmp/tuning' + hparam_str
+			base = 'tmp/tuning/'
 		else:
-			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
-			basedir = 'tmp/output' + '/{timestamp}'
+			base = 'tmp/output/'
+		basedir = base + timestamp
+
+		# save hparams with model
+		hparam_dict = hparams.values()
+		with open('{0}hparams_{1}.json'.format(basedir, timestamp), 'w') as hparam_file:
+			json.dump(hparam_dict, hparam_file)
+
+		# add hparams to dictionary of models
+		master_entry = {timestamp: hparam_dict}
+		with open('{0}hparams_master.json', 'w') as master_file:
+			json.dump(master_entry, master_file)
 
 		callback_log = TensorBoard(
 			histogram_freq=0,
@@ -55,9 +69,9 @@ class CryptoBot:
 		except:
 			if test:
 				pnx.fetch_data(test=True)
-				input_array = pdata.read_data(test=True)
+				input_array = pdata.read_data('data/test/')
 			else:
-				pdata.fetch_data()
+				pnx.fetch_data()
 				input_array = pdata.read_data()
 		total_time_steps = input_array.shape[1]
 		train_size = int(total_time_steps*0.7)
@@ -140,12 +154,12 @@ class CryptoBot:
 		fn.check_path(train_path)
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
-			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
+			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams)
 			input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[:hparams.batch_size] = input_weights
 			for i in range(1, hparams.num_training_steps):
-				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams, params)
+				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams)
 				input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams, params)
 				input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1],
 					init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
@@ -266,7 +280,7 @@ def main(_):
 	opt_test_portfolio, opt_test_port_return = pdata.calc_optimal_portfolio(test_labels, 'tmp/test')
 
 	# Create the model
-	input_prices = tf.placeholder(tf.float32, [None, hparams.num_coins, hparams.window_size, hparams.num_input_channels])
+	input_prices = tf.placeholder(tf.float32, [None, hparams.num_coins, hparams.window_size, params.num_input_channels])
 	labels = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
 	init_weights = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
 	batch_size = tf.placeholder(tf.int32)

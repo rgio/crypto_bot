@@ -26,7 +26,7 @@ COINS = ["BTC"]
 COINS.extend([pair.split('_')[1] for pair in PAIRS])
 PAIRS_DICT = {}
 for coin in COINS_INDICES:
-    PAIRS_DICT[COINS_INDICES[coin]]='BTC_'+coin
+	PAIRS_DICT[COINS_INDICES[coin]]='BTC_'+coin
 PARAMS = ['high','open','volume']
 num_coins = len(PAIRS)+1
 
@@ -40,163 +40,164 @@ polo.public = Poloniex()
 polo.private = Poloniex(polo.Key, polo.Secret)
 
 def get_new_portfolio(new_portfolio):
-    rates = get_current_rates()
-    balances = get_balances()
-    portfolio_value = get_portfolio_value(rates,balances) # in BTC
-    cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
-    differences = np.array(new_portfolio) - np.array(cur_portfolio)
-    differences = differences[0]
-    reduced_portfolio_value = portfolio_value - np.sum(np.absolute(differences))*0.003*portfolio_value
-    print("cur_portfolio: %s" % cur_portfolio)
-    print("new_portfolio: %s" % new_portfolio)
-    #place sell orders first
-    for i in range(len(differences))[1:]:
-        curr_pair = PAIRS_DICT[i]
-        curr_coin = curr_pair.split('_')[1]
-        curr_rate = rates[curr_pair]['last']
-        if differences[i] < 0:
-            amount_btc = abs(differences[i]) * reduced_portfolio_value
-            amount_coin = amount_btc / curr_rate
-            #print("amount_btc = %s" % amount_btc)
-            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
-            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
-            #pdb.set_trace()
-            if (amount_btc > 0.00011 and amount_coin <= balances[curr_coin]): # since there are minimum buy/ sell orders allowed, check if we have enough coin to sell 
-                print("Selling %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
-                #pdb.set_trace()  
-                place_sell_order(curr_pair,curr_rate,amount_coin)
-    # TODO: have it check to see when all sell orders have completed
-    time.sleep(30)#wait for sell orders to process
-    for i in range(len(differences))[1:]:
-        curr_pair = PAIRS_DICT[i]
-        curr_coin = curr_pair.split('_')[1]
-        curr_rate = rates[curr_pair]['last']
-        #pdb.set_trace()
-        if differences[i] > 0:
-            amount_btc = differences[i] * reduced_portfolio_value
-            amount_coin = amount_btc / curr_rate
-            #print("amount_btc = %s" % amount_btc)
-            print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
-            print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
-            if (amount_btc > 0.00011 and amount_btc <= balances['BTC']): # since there are minimum buy/ sell orders allowed, check if we have enough BTC to buy 
-                print("Buying %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
-                #pdb.set_trace()
-                place_buy_order(curr_pair,curr_rate,amount_coin)
-    time.sleep(30) # let buy orders finish
-    rates = get_current_rates()
-    balances = get_balances()
-    portfolio_value = get_portfolio_value(rates, balances) 
-    return portfolio_value, reduced_portfolio_value
+	rates = get_current_rates()
+	balances = get_balances()
+	portfolio_value = get_portfolio_value(rates,balances) # in BTC
+	cur_portfolio = get_weights(rates,balances,portfolio_value)#weight vector of current portfolio
+	differences = np.array(new_portfolio) - np.array(cur_portfolio)
+	differences = differences[0]
+	reduced_portfolio_value = portfolio_value - np.sum(np.absolute(differences))*0.003*portfolio_value
+	print("cur_portfolio: %s" % cur_portfolio)
+	print("new_portfolio: %s" % new_portfolio)
+	#place sell orders first
+	for i in range(len(differences))[1:]:
+		curr_pair = PAIRS_DICT[i]
+		curr_coin = curr_pair.split('_')[1]
+		curr_rate = rates[curr_pair]['last']
+		if differences[i] < 0:
+			amount_btc = abs(differences[i]) * reduced_portfolio_value
+			amount_coin = amount_btc / curr_rate
+			#print("amount_btc = %s" % amount_btc)
+			print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+			print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+			#pdb.set_trace()
+			if (amount_btc > 0.00011 and amount_coin <= balances[curr_coin]): # since there are minimum buy/ sell orders allowed, check if we have enough coin to sell
+				print("Selling %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
+				#pdb.set_trace()
+				place_sell_order(curr_pair,curr_rate,amount_coin)
+	# TODO: have it check to see when all sell orders have completed
+	time.sleep(30)#wait for sell orders to process
+	for i in range(len(differences))[1:]:
+		curr_pair = PAIRS_DICT[i]
+		curr_coin = curr_pair.split('_')[1]
+		curr_rate = rates[curr_pair]['last']
+		#pdb.set_trace()
+		if differences[i] > 0:
+			amount_btc = differences[i] * reduced_portfolio_value
+			amount_coin = amount_btc / curr_rate
+			#print("amount_btc = %s" % amount_btc)
+			print("amount_%s = %s ~ %s BTC" % (curr_coin,amount_coin,amount_btc))
+			print("balances[%s] = %s" % (curr_coin,balances[curr_coin]))
+			if (amount_btc > 0.00011 and amount_btc <= balances['BTC']): # since there are minimum buy/ sell orders allowed, check if we have enough BTC to buy
+				print("Buying %s %s = %s BTC" % (amount_coin,curr_coin,amount_btc))
+				#pdb.set_trace()
+				place_buy_order(curr_pair,curr_rate,amount_coin)
+	time.sleep(30) # let buy orders finish
+	rates = get_current_rates()
+	balances = get_balances()
+	portfolio_value = get_portfolio_value(rates, balances)
+	return portfolio_value, reduced_portfolio_value
 
 #IN BTC
 def get_portfolio_value(rates,balances):
-    portfolio_value = 0
-    for coin in balances:
-        if(coin=="BTC"):
-            portfolio_value += balances[coin]
-        else:
-            portfolio_value += balances[coin]*rates['BTC_'+coin]['last']
-    return portfolio_value
+	portfolio_value = 0
+	for coin in balances:
+		if(coin=="BTC"):
+			portfolio_value += balances[coin]
+		else:
+			portfolio_value += balances[coin]*rates['BTC_'+coin]['last']
+	return portfolio_value
 
 def get_weights(rates=None,balances=None,portfolio_value=None):
-    if(rates is None):
-        rates = get_current_rates()
-    if(balances is None):
-        balances = get_balances()
-    if(portfolio_value is None):
-        portfolio_value = get_portfolio_value(rates,balances)
-    weights = [0]*num_coins
-    for coin in balances:
-        if(coin=="BTC"):
-            coin_value = balances[coin]
-        else:
-            rate = rates["BTC_"+coin]['last']
-            coin_value = rate*balances[coin]
-        weights[COINS_INDICES[coin]]=coin_value/portfolio_value
-    weights = np.array(weights, dtype=np.float32)
-    weights = np.reshape(weights, (1, weights.shape[0]))
-    return weights
+	if(rates is None):
+		rates = get_current_rates()
+	if(balances is None):
+		balances = get_balances()
+	if(portfolio_value is None):
+		portfolio_value = get_portfolio_value(rates,balances)
+	weights = [0]*num_coins
+	for coin in balances:
+		if(coin=="BTC"):
+			coin_value = balances[coin]
+		else:
+			rate = rates["BTC_"+coin]['last']
+			coin_value = rate*balances[coin]
+		weights[COINS_INDICES[coin]]=coin_value/portfolio_value
+	weights = np.array(weights, dtype=np.float32)
+	weights = np.reshape(weights, (1, weights.shape[0]))
+	return weights
 
 
 def place_sell_order(pair,rate,amount):
-    polo.private.sell(pair,rate,amount)
+	polo.private.sell(pair,rate,amount)
 
 def place_buy_order(pair,rate,amount):
-    polo.private.buy(pair,rate,amount)
+	polo.private.buy(pair,rate,amount)
 
 def get_current_rates():
-    df = pd.read_json(TICKER_URL, convert_dates=False)
-    #df = pd.read_json(polo.returnTicker())
-    return df
+	df = pd.read_json(TICKER_URL, convert_dates=False)
+	#df = pd.read_json(polo.returnTicker())
+	return df
 
 def get_balances():
-    balances = {}
-    b = polo.private.returnBalances()
-    for coin in COINS:
-        balances[coin]=float(b[coin])
-    return balances
+	balances = {}
+	b = polo.private.returnBalances()
+	for coin in COINS:
+		balances[coin]=float(b[coin])
+	return balances
 
 def fetch_data(start_time=1482123600,end_time=9999999999,path=DATA_DIR, test=False):
-    if test:
-        start_time = 1482123600
-        end_time = 1482123600 + 2 * 86400 # 2 days
-    for pair in PAIRS:
-        datafile = os.path.join(path, pair+"_test"+".csv")
-        timefile = os.path.join(path, pair+"_test")
-        url = FETCH_URL % (pair, start_time, end_time)
-        df = pd.read_json(url, convert_dates=False)
-        if df["date"].iloc[-1] == 0:
-            print("No data.")
-        end_time = df["date"].iloc[-1]
-        #pdb.set_trace()
-        ft = open(timefile,"w")
-        ft.write("%d\n" % end_time)
-        ft.close()
-        outf = open(datafile, "w")
-        df.to_csv(outf, index=False, columns=COLUMNS)
-        outf.close()
-        print('completed: %s' % pair)
-        #time.sleep(30)
+	if test:
+		start_time = 1482123600
+		end_time = 1482123600 + 2 * 86400
+		path = 'data/test' # 2 days
+	for pair in PAIRS:
+		datafile = os.path.join(path, pair+"_test"+".csv")
+		timefile = os.path.join(path, pair+"_test")
+		url = FETCH_URL % (pair, start_time, end_time)
+		df = pd.read_json(url, convert_dates=False)
+		if df["date"].iloc[-1] == 0:
+			print("No data.")
+		end_time = df["date"].iloc[-1]
+		#pdb.set_trace()
+		ft = open(timefile,"w")
+		ft.write("%d\n" % end_time)
+		ft.close()
+		outf = open(datafile, "w")
+		df.to_csv(outf, index=False, columns=COLUMNS)
+		outf.close()
+		print('completed: %s' % pair)
+		#time.sleep(30)
 
 
 def get_data(pair):
-    datafile = os.path.join(DATA_DIR, pair+".csv")
-    timefile = os.path.join(DATA_DIR, pair)
+	datafile = os.path.join(DATA_DIR, pair+".csv")
+	timefile = os.path.join(DATA_DIR, pair)
 
-    if os.path.exists(datafile):
-        newfile = False
-        start_time = int(open(timefile).readline()) + 1
-    else:
-        newfile = True
-        start_time = 1388534400     # 2014.01.01
-    end_time = 9999999999#start_time + 86400*30
+	if os.path.exists(datafile):
+		newfile = False
+		start_time = int(open(timefile).readline()) + 1
+	else:
+		newfile = True
+		start_time = 1388534400     # 2014.01.01
+	end_time = 9999999999#start_time + 86400*30
 
-    url = FETCH_URL % (pair, start_time, end_time)
-    print("Get %s from %d to %d" % (pair, start_time, end_time))
+	url = FETCH_URL % (pair, start_time, end_time)
+	print("Get %s from %d to %d" % (pair, start_time, end_time))
 
-    df = pd.read_json(url, convert_dates=False)
+	df = pd.read_json(url, convert_dates=False)
 
-    #import pdb;pdb.set_trace()
+	#import pdb;pdb.set_trace()
 
-    if df["date"].iloc[-1] == 0:
-        print("No data.")
-        return
+	if df["date"].iloc[-1] == 0:
+		print("No data.")
+		return
 
-    end_time = df["date"].iloc[-1]
-    ft = open(timefile,"w")
-    ft.write("%d\n" % end_time)
-    ft.close()
-    outf = open(datafile, "a")
-    if newfile:
-        df.to_csv(outf, index=False, columns=COLUMNS)
-    else:
-        df.to_csv(outf, index=False, columns=COLUMNS, header=False)
-    outf.close()
-    print("Finish.")
-    time.sleep(30)
+	end_time = df["date"].iloc[-1]
+	ft = open(timefile,"w")
+	ft.write("%d\n" % end_time)
+	ft.close()
+	outf = open(datafile, "a")
+	if newfile:
+		df.to_csv(outf, index=False, columns=COLUMNS)
+	else:
+		df.to_csv(outf, index=False, columns=COLUMNS, header=False)
+	outf.close()
+	print("Finish.")
+	time.sleep(30)
 
 def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
-    return time.mktime(time.strptime(datestr, format))
+	return time.mktime(time.strptime(datestr, format))
 
 # class poloniex:
 #     def __init__(self, APIKey, Secret):
@@ -330,16 +331,16 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 
 
 def main():
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
+	if not os.path.exists(DATA_DIR):
+		os.mkdir(DATA_DIR)
 
-    df = pd.read_json("https://poloniex.com/public?command=return24hVolume")
-    pairs = [pair for pair in df.columns if pair.startswith('BTC')]
-    print(pairs)
+	df = pd.read_json("https://poloniex.com/public?command=return24hVolume")
+	pairs = [pair for pair in df.columns if pair.startswith('BTC')]
+	print(pairs)
 
-    for pair in pairs:
-        get_data(pair)
-        time.sleep(2)
+	for pair in pairs:
+		get_data(pair)
+		time.sleep(2)
 
 #if __name__ == '__main__':
 #    main()"""

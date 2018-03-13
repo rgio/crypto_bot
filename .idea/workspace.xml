@@ -2,8 +2,63 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ba82cad8-905f-4a63-9c6d-ce980169f4b6" name="Default" comment="">
+      <change beforePath="" afterPath="$PROJECT_DIR$/references/Agent Inspired Trading Using Recurrent Reinforcement Learning and LSTM Neural Networks.pdf" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/references/Deep Reinforcement Learning for Pairs Trading.pdf" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/references/Portfolio_Management_Bot_Paper.pdf" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/cnn.py" afterPath="$PROJECT_DIR$/cnn.py" />
       <change beforePath="$PROJECT_DIR$/crypto_bot.py" afterPath="$PROJECT_DIR$/crypto_bot.py" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_BCN_test" afterPath="$PROJECT_DIR$/data/BTC_BCN_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_BCN_test.csv" afterPath="$PROJECT_DIR$/data/BTC_BCN_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_BTS_test" afterPath="$PROJECT_DIR$/data/BTC_BTS_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_BTS_test.csv" afterPath="$PROJECT_DIR$/data/BTC_BTS_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DASH_test" afterPath="$PROJECT_DIR$/data/BTC_DASH_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DASH_test.csv" afterPath="$PROJECT_DIR$/data/BTC_DASH_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DGB_test" afterPath="$PROJECT_DIR$/data/BTC_DGB_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DGB_test.csv" afterPath="$PROJECT_DIR$/data/BTC_DGB_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DOGE_test" afterPath="$PROJECT_DIR$/data/BTC_DOGE_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_DOGE_test.csv" afterPath="$PROJECT_DIR$/data/BTC_DOGE_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ETC_test" afterPath="$PROJECT_DIR$/data/BTC_ETC_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ETC_test.csv" afterPath="$PROJECT_DIR$/data/BTC_ETC_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ETH_test" afterPath="$PROJECT_DIR$/data/BTC_ETH_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ETH_test.csv" afterPath="$PROJECT_DIR$/data/BTC_ETH_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_LSK_test" afterPath="$PROJECT_DIR$/data/BTC_LSK_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_LSK_test.csv" afterPath="$PROJECT_DIR$/data/BTC_LSK_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_LTC_test" afterPath="$PROJECT_DIR$/data/BTC_LTC_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_LTC_test.csv" afterPath="$PROJECT_DIR$/data/BTC_LTC_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_MAID_test" afterPath="$PROJECT_DIR$/data/BTC_MAID_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_MAID_test.csv" afterPath="$PROJECT_DIR$/data/BTC_MAID_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_NXT_test" afterPath="$PROJECT_DIR$/data/BTC_NXT_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_NXT_test.csv" afterPath="$PROJECT_DIR$/data/BTC_NXT_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_SC_test" afterPath="$PROJECT_DIR$/data/BTC_SC_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_SC_test.csv" afterPath="$PROJECT_DIR$/data/BTC_SC_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STEEM_test" afterPath="$PROJECT_DIR$/data/BTC_STEEM_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STEEM_test.csv" afterPath="$PROJECT_DIR$/data/BTC_STEEM_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STRAT_test" afterPath="$PROJECT_DIR$/data/BTC_STRAT_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STRAT_test.csv" afterPath="$PROJECT_DIR$/data/BTC_STRAT_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STR_test" afterPath="$PROJECT_DIR$/data/BTC_STR_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_STR_test.csv" afterPath="$PROJECT_DIR$/data/BTC_STR_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_SYS_test" afterPath="$PROJECT_DIR$/data/BTC_SYS_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_SYS_test.csv" afterPath="$PROJECT_DIR$/data/BTC_SYS_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XEM_test" afterPath="$PROJECT_DIR$/data/BTC_XEM_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XEM_test.csv" afterPath="$PROJECT_DIR$/data/BTC_XEM_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XMR_test" afterPath="$PROJECT_DIR$/data/BTC_XMR_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XMR_test.csv" afterPath="$PROJECT_DIR$/data/BTC_XMR_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XRP_test" afterPath="$PROJECT_DIR$/data/BTC_XRP_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_XRP_test.csv" afterPath="$PROJECT_DIR$/data/BTC_XRP_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ZEC_test" afterPath="$PROJECT_DIR$/data/BTC_ZEC_test" />
+      <change beforePath="$PROJECT_DIR$/data/BTC_ZEC_test.csv" afterPath="$PROJECT_DIR$/data/BTC_ZEC_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_bts_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_bts_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_dash_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_dash_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_etc_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_etc_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_eth_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_eth_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_ltc_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_ltc_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_steem_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_steem_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_strat_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_strat_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_xem_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_xem_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_xmr_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_xmr_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_xrp_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_xrp_test.csv" />
+      <change beforePath="$PROJECT_DIR$/data/test/btc_zec_test.csv" afterPath="$PROJECT_DIR$/data/test/btc_zec_test.csv" />
       <change beforePath="$PROJECT_DIR$/hparams.py" afterPath="$PROJECT_DIR$/hparams.py" />
       <change beforePath="$PROJECT_DIR$/poloniex_api.py" afterPath="$PROJECT_DIR$/poloniex_api.py" />
       <change beforePath="$PROJECT_DIR$/price_data.py" afterPath="$PROJECT_DIR$/price_data.py" />
@@ -16,7 +71,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/crypto_bot$hparams.coverage" NAME="hparams Coverage Results" MODIFIED="1520483226527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crypto_bot$hparams.coverage" NAME="hparams Coverage Results" MODIFIED="1520717903777" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FavoritesManager">
     <favorites_list name="crypto_bot" />
@@ -26,13 +81,36 @@
       <file leaf-file-name="hparams.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/hparams.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="292">
-              <caret line="80" column="0" lean-forward="true" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+            <state relative-caret-position="2376">
+              <caret line="99" column="33" lean-forward="false" selection-start-line="99" selection-start-column="33" selection-end-line="99" selection-end-column="33" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
-                <element signature="e#1361#1767#0" expanded="false" />
-                <element signature="e#4904#4975#0" expanded="false" />
-                <element signature="e#5028#5112#0" expanded="false" />
+                <element signature="e#4873#4930#0" expanded="false" />
+                <element signature="e#5201#5285#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="nn.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Downloads/projects/neural_net/nn.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Downloads/projects/learnability/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="528">
+              <caret line="16" column="11" lean-forward="false" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -41,8 +119,8 @@
       <file leaf-file-name="crypto_bot.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/crypto_bot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1881">
-              <caret line="57" column="56" lean-forward="true" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+            <state relative-caret-position="4257">
+              <caret line="156" column="0" lean-forward="false" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -53,11 +131,11 @@
       <file leaf-file-name="price_data.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/price_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3135">
-              <caret line="135" column="23" lean-forward="false" selection-start-line="135" selection-start-column="23" selection-end-line="135" selection-end-column="23" />
+            <state relative-caret-position="231">
+              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
-                <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
+                <marker date="1520487306117" expanded="true" signature="10152:10187" ph="..." />
               </folding>
             </state>
           </provider>
@@ -66,8 +144,8 @@
       <file leaf-file-name="poloniex_api.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/poloniex_api.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="495">
-              <caret line="139" column="12" lean-forward="false" selection-start-line="139" selection-start-column="12" selection-end-line="139" selection-end-column="12" />
+            <state relative-caret-position="4323">
+              <caret line="141" column="41" lean-forward="false" selection-start-line="141" selection-start-column="41" selection-end-line="141" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -76,8 +154,8 @@
       <file leaf-file-name="cnn.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1756">
-              <caret line="32" column="30" lean-forward="true" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
+            <state relative-caret-position="2475">
+              <caret line="82" column="51" lean-forward="false" selection-start-line="82" selection-start-column="51" selection-end-line="82" selection-end-column="51" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -96,23 +174,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>n</find>
-      <find>set_param</find>
-      <find>.</find>
-      <find>hparams.num_</find>
-      <find>.num_coins</find>
-      <find>get_spec</find>
-      <find>.num_</find>
-      <find>hparams.num</find>
-      <find>hparams.num_coin</find>
-      <find>num_coins</find>
-      <find>params.num</find>
-      <find>params.num_coins</find>
-      <find>num_coin</find>
-      <find>pdb</find>
-      <find>num_input</find>
-      <find>hparams.num_input</find>
-      <find>get_specif</find>
       <find>get_spe</find>
       <find>get_next</find>
       <find>get_ne</find>
@@ -124,8 +185,25 @@
       <find>params.</find>
       <find>data</find>
       <find>fetch_</find>
+      <find>run_bot</find>
+      <find>crypto</find>
+      <find>TEST</find>
+      <find>test</find>
       <find>fetc</find>
       <find>fetch</find>
+      <find>PAIRS</find>
+      <find>read_data</find>
+      <find>DATA_DIR</find>
+      <find>data/t</find>
+      <find>hparam_str</find>
+      <find>'data</find>
+      <find>hparams.num_coins</find>
+      <find>DEFAULT</find>
+      <find>num_inp</find>
+      <find>params</find>
+      <find>:</find>
+      <find>hparams, pa</find>
+      <find>datetime</find>
     </findStrings>
     <replaceStrings>
       <replace>basedir</replace>
@@ -185,11 +263,11 @@
         <option value="$USER_HOME$/.virtualenvs/env_crypto_bot-5eozVQI2/Lib/site-packages/pip/utils/appdirs.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/functions.py" />
-        <option value="$PROJECT_DIR$/cnn.py" />
-        <option value="$PROJECT_DIR$/price_data.py" />
         <option value="$PROJECT_DIR$/poloniex_api.py" />
+        <option value="$PROJECT_DIR$/cnn.py" />
         <option value="$PROJECT_DIR$/crypto_bot.py" />
         <option value="$PROJECT_DIR$/hparams.py" />
+        <option value="$PROJECT_DIR$/price_data.py" />
       </list>
     </option>
   </component>
@@ -200,10 +278,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="215" />
-    <option name="y" value="98" />
+    <option name="x" value="575" />
+    <option name="y" value="-15" />
     <option name="width" value="1942" />
-    <option name="height" value="2091" />
+    <option name="height" value="2092" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -234,6 +312,11 @@
             <id>XML</id>
           </State>
         </expanded-state>
+        <selected-state>
+          <State>
+            <id>PyArgumentListInspection</id>
+          </State>
+        </selected-state>
       </profile-state>
     </entry>
   </component>
@@ -255,6 +338,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -262,18 +346,23 @@
               <item name="crypto_bot" type="b2602c69:ProjectViewProjectNode" />
               <item name="crypto_bot" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="crypto_bot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="crypto_bot" type="462c0819:PsiDirectoryNode" />
+              <item name="references" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="preferences.editor" />
     <property name="SearchEverywhereHistoryKey" value="get_spec&#9;null&#9;null" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -515,7 +604,14 @@
       <option name="project" value="LOCAL" />
       <updated>1520403162757</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="hyperparameter optimization should be working">
+      <created>1520483488757</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1520483488757</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TodoView">
@@ -532,42 +628,31 @@
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298109" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3292204" sideWeight="0.5032051" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Documentation" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17457356" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="0" y="0" width="916" height="1906" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19243604" sideWeight="0.49600214" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27753058" sideWeight="0.49679488" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37486094" sideWeight="0.49802566" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18409343" sideWeight="0.49827245" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21428572" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="SciView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2510661" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298109" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3292204" sideWeight="0.5032051" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17457356" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="0" y="0" width="916" height="1906" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37875417" sideWeight="0.49802566" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3589456" sideWeight="0.49753207" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.46438587" sideWeight="0.49679488" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37875417" sideWeight="0.49802566" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18452047" sideWeight="0.49827245" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10300316" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.104211085" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299075" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="SciView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2510661" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299075" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -575,7 +660,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="working on hyperparameter optimization" />
     <MESSAGE value="hyperparameter optimization should be working" />
-    <option name="LAST_COMMIT_MESSAGE" value="hyperparameter optimization should be working" />
+    <MESSAGE value="adding papers" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding papers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -584,79 +670,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/price_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7029">
-          <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/crypto_bot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-561">
-          <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hparams.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="156" column="24" lean-forward="true" selection-start-line="156" selection-start-column="24" selection-end-line="156" selection-end-column="24" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/price_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="12" column="30" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="627">
-          <caret line="26" column="49" lean-forward="false" selection-start-line="26" selection-start-column="49" selection-end-line="26" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/loss_value.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#38#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="8" column="8" lean-forward="false" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/crypto_bot.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="891">
@@ -673,9 +686,8 @@
           <caret line="120" column="82" lean-forward="false" selection-start-line="120" selection-start-column="82" selection-end-line="120" selection-end-column="82" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
+            <element signature="e#4873#4930#0" expanded="false" />
+            <element signature="e#5201#5285#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -686,9 +698,8 @@
           <caret line="105" column="19" lean-forward="false" selection-start-line="105" selection-start-column="19" selection-end-line="105" selection-end-column="19" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
+            <element signature="e#4873#4930#0" expanded="false" />
+            <element signature="e#5201#5285#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -704,7 +715,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="726">
           <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -714,7 +724,7 @@
           <caret line="206" column="31" lean-forward="false" selection-start-line="206" selection-start-column="31" selection-end-line="206" selection-end-column="31" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
+            <marker date="1520487306117" expanded="true" signature="10152:10187" ph="..." />
           </folding>
         </state>
       </provider>
@@ -733,7 +743,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="231">
           <caret line="7" column="29" lean-forward="true" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -778,9 +787,8 @@
           <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
+            <element signature="e#4873#4930#0" expanded="false" />
+            <element signature="e#5201#5285#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -789,7 +797,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="726">
           <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -799,7 +806,7 @@
           <caret line="140" column="0" lean-forward="false" selection-start-line="139" selection-start-column="0" selection-end-line="140" selection-end-column="0" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
+            <marker date="1520487306117" expanded="true" signature="10152:10187" ph="..." />
           </folding>
         </state>
       </provider>
@@ -818,7 +825,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -860,9 +866,8 @@
           <caret line="27" column="18" lean-forward="false" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
+            <element signature="e#4873#4930#0" expanded="false" />
+            <element signature="e#5201#5285#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -873,7 +878,7 @@
           <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="13" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
+            <marker date="1520487306117" expanded="true" signature="10152:10187" ph="..." />
           </folding>
         </state>
       </provider>
@@ -882,7 +887,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -905,7 +909,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="627">
           <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -927,7 +930,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="726">
           <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -951,9 +953,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
           <caret line="15" column="11" lean-forward="true" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#38#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -968,56 +967,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="394">
           <caret line="12" column="32" lean-forward="false" selection-start-line="12" selection-start-column="32" selection-end-line="12" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#38#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="8" column="8" lean-forward="false" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1756">
-          <caret line="32" column="30" lean-forward="true" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/poloniex_api.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="139" column="12" lean-forward="false" selection-start-line="139" selection-start-column="12" selection-end-line="139" selection-end-column="12" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/price_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3135">
-          <caret line="135" column="23" lean-forward="false" selection-start-line="135" selection-start-column="23" selection-end-line="135" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-            <marker date="1520478213097" expanded="true" signature="9893:9928" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/crypto_bot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1881">
-          <caret line="57" column="56" lean-forward="true" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1025,19 +974,94 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="197">
           <caret line="215" column="0" lean-forward="false" selection-start-line="215" selection-start-column="0" selection-end-line="215" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/env_crypto_bot-5eozVQI2/Lib/os.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6831">
+          <caret line="209" column="0" lean-forward="false" selection-start-line="209" selection-start-column="0" selection-end-line="209" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/price_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+            <marker date="1520487306117" expanded="true" signature="10152:10187" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poloniex_api.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4323">
+          <caret line="141" column="41" lean-forward="false" selection-start-line="141" selection-start-column="41" selection-end-line="141" selection-end-column="41" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2475">
+          <caret line="82" column="51" lean-forward="false" selection-start-line="82" selection-start-column="51" selection-end-line="82" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/crypto_bot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4257">
+          <caret line="156" column="0" lean-forward="false" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/Rar$DIa0.307/nn.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/Rar$DIa0.757/nn.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/Rar$DIa0.200/nn.py" />
+    <entry file="file://$USER_HOME$/AppData/Local/Temp/Rar$DIa0.232/nn.py" />
+    <entry file="file://$USER_HOME$/Downloads/projects/neural_net/nn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/projects/learnability/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="16" column="11" lean-forward="false" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hparams.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="80" column="0" lean-forward="true" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+        <state relative-caret-position="2376">
+          <caret line="99" column="33" lean-forward="false" selection-start-line="99" selection-start-column="33" selection-end-line="99" selection-end-column="33" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
-            <element signature="e#1361#1767#0" expanded="false" />
-            <element signature="e#4904#4975#0" expanded="false" />
-            <element signature="e#5028#5112#0" expanded="false" />
+            <element signature="e#4873#4930#0" expanded="false" />
+            <element signature="e#5201#5285#0" expanded="false" />
           </folding>
         </state>
       </provider>

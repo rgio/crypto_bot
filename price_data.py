@@ -11,9 +11,12 @@ import poloniex_api as pnx
 
 global_price_array = []
 DEFAULT_DIRECTORY = 'data/'
+PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
+   "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 
 
-def read_data(directory=DEFAULT_DIRECTORY):
+
+def read_data(directory=DEFAULT_DIRECTORY, pairs=PAIRS):
 	# if we have already calculated the global price array, read it from txt
 	# TODO: The second line of the try statement can never be executed and the except clause is executed no matter what.
 	# TODO: Maybe we can remove 'raise Exception('err')'? This syntax is confusing and exception handling can be expensive
@@ -22,7 +25,7 @@ def read_data(directory=DEFAULT_DIRECTORY):
 		global_price_array = np.genfromtxt('global_price')
 	except:
 		prices = {}
-		for pair in PAIRS:
+		for pair in pairs:
 			with open(directory+pair+"_test.csv") as file:
 				reader = csv.reader(file, delimiter=' ', quotechar='|')
 				pair_info = []

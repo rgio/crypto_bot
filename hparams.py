@@ -15,7 +15,7 @@ import crypto_bot
 
 
 def main():
-	optimizer = HyperparameterOptimizer()
+	optimizer = HyperparameterOptimizer(test=True)
 	results = optimizer.optimize()
 	plot_convergence(results)
 	print('Hyperparameeter optimization log:\n{optimizer.hparam_log}')
@@ -40,7 +40,6 @@ def set_hparams() -> HParams:
 		dropout_keep_prob=0.5,
 	)
 	return hparams
-
 
 def set_params() -> HParams:
 	params = HParams(coin_pairs = ["BTC_BTS", "BTC_ZEC", "BTC_STRAT", "BTC_XEM", "BTC_STEEM", "BTC_LTC", "BTC_ETC",
@@ -79,43 +78,53 @@ def init_search_space_list() -> list:
 	return search_space_list
 
 
-
 @use_named_args(dimensions=init_search_space_list())
-def run_bot(window_size, # TODO: figure out how to avoid hardcoding these
+def run_bot(batch_sampling_method,
+			window_size,
 			stride,
 			batch_size,
 			num_training_steps,
 			learning_rate,
-			geometric_decay,  # the large geometric_decay is the more recent times will be selected in training
-			conv1_filter_length,
+			geometric_decay,
+			conv_layers_separable,
+			len_conv1_filters,
 			num_conv1_features,
 			num_conv2_features,
 			num_fc1_neurons,
+			model_ending,
 			dropout_keep_prob) -> float:
+	# TODO: remove hardcoding of args (metaclass? couldn't get args to unpack
 	hparams = HParams(**inspect.getargvalues(inspect.currentframe())[3])
 	hparam_dict = hparams.values()
-	hparam_str = gen_hparam_str(hparam_dict)
-	print(hparam_str)
-	bot = crypto_bot.CryptoBot(hparams, tuning=True, hparam_str=hparam_str)
+	print(hparam_dict)
+	bot = crypto_bot.CryptoBot(hparams, test=TEST, tuning=True)
 	cost = -bot.get_value()
 	# TODO: figure out another method of logging because this can't be a part of the class
 	"""if cost < self.lowest_cost:
 		self.lowest_cost = cost
-		crypto_bot.CryptoBot(hparams, tuning=True, hparam_str='/best')"""
+		crypto_bot.CryptoBot(hparams, tuning=True, dir_str='/best, hparam_str=hparam_str)"""
 	return cost
 
+"""
 def gen_hparam_str(hparam_dict) -> str:
 	hparam_str = '/hparams'
 	for hparam, value in hparam_dict.items():
 		hparam_str += (f'_{hparam}-{value}')
 	return hparam_str
 
+def gen_dir_str() -> str:
+	timestamp = datetime.now().strftime('%Y%m%d_%H-%M-%S')
+	dir_str = '/hparams_{0}'.format(timestamp)
+	return dir_str
+"""
 
 class HyperparameterOptimizer:
-	def __init__(self, hparam_dict=None, search_dim_dict=None):
+	def __init__(self, test=False, hparam_dict=None, search_dim_dict=None):
 		if not (hparam_dict and search_dim_dict):
 			self.hparam_dict = self.init_hparam_dict()
 			self.search_space_dict = init_search_space_dict()
+		global TEST
+		TEST = test
 		self.lowest_cost = 1
 
 	@staticmethod
@@ -138,7 +147,6 @@ class HyperparameterOptimizer:
 		search_space_list = list(self.search_space_dict.values())
 		return search_space_list
 
-
 	def optimize(self) -> dict:
 		# TODO: optimize arguments to gp_minimize
 		# Documentation: https://scikit-optimize.github.io/optimizer/index.html
@@ -154,6 +162,7 @@ class HyperparameterOptimizer:
 		self.best_hparams = best_hparams
 		self.hparam_log = sorted(zip(results.func_vals, results.x_iters))
 		return best_hparams
+
 
 
 if __name__ == '__main__':
