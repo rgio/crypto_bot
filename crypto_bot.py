@@ -42,17 +42,19 @@ class CryptoBot:
 			base = 'tmp/tuning/'
 		else:
 			base = 'tmp/output/'
-		basedir = base + timestamp
+		basedir = base + timestamp + '/'
+		fn.check_path(basedir)
 
 		# save hparams with model
-		hparam_dict = hparams.values()
-		with open('{0}hparams_{1}.json'.format(basedir, timestamp), 'w') as hparam_file:
-			json.dump(hparam_dict, hparam_file)
-
-		# add hparams to dictionary of models
-		master_entry = {timestamp: hparam_dict}
-		with open('{0}hparams_master.json', 'w') as master_file:
-			json.dump(master_entry, master_file)
+		# TODO: FIX THIS
+		# with open('{0}hparams_{1}.json'.format(basedir, timestamp), 'w') as hparam_file:
+		# 	hparam_file.write(hparams.to_json())
+		#
+		# # add hparams to dictionary of models
+		# hparam_dict = hparams.values()
+		# master_entry = {timestamp: hparam_dict}
+		# with open('{0}hparams_master.json'.format(basedir), 'w') as master_file:
+		# 	json.dump(master_entry, master_file)
 
 		callback_log = TensorBoard(
 			histogram_freq=0,
@@ -154,12 +156,12 @@ class CryptoBot:
 		fn.check_path(train_path)
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
-			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams)
+			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
 			input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[:hparams.batch_size] = input_weights
 			for i in range(1, hparams.num_training_steps):
-				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams)
+				batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams, params)
 				input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams, params)
 				input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1],
 					init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
@@ -230,7 +232,7 @@ class CryptoBot:
 			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))
 
 	def get_value(self):
-		return self.final_value
+		return self.final_pvm
 
 
 			# Proper validation test
@@ -248,9 +250,10 @@ class CryptoBot:
 			#   		init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
 			# np.savetxt('tmp/proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 			# print('The (proper) final validation set value multiplier is %.8f' % portfolio_value)
-
+"""
 def main(_):
 	# Set up the models hyperparameters
+	params = 
 	hparams = hp.set_hyperparameters()
 	if FLAGS.hparams: # override default hparams if command line hparams exist
 		hparams.parse(FLAGS.hparams)
@@ -330,13 +333,13 @@ def main(_):
 	# Run the training and testing
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
-		batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams)
+		batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
 		input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1], 
 				init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0}) 
 		memory_array[:hparams.batch_size] = input_weights
 		for i in range(1, hparams.num_training_steps):
-			batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams)
-			input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams)
+			batch = pdata.get_next_price_batch(train_data, train_labels, i, hparams, params)
+			input_weights_batch = pdata.get_specific_price_batch(train_data, train_labels, batch[2]-1, hparams, params)
 			input_weights = weights.eval(feed_dict={input_prices: input_weights_batch[0], labels: input_weights_batch[1], 
 				init_weights: memory_array[batch[2]:batch[2]+hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[batch[2]:batch[2]+hparams.batch_size] = input_weights
@@ -388,6 +391,7 @@ def main(_):
 				init_weights: test_weights, batch_size: 1, keep_prob: 1.0})
 		np.savetxt(path_to_model_dir + 'proper_test_returns.out', t, fmt='%.8f', delimiter=' ')
 		print('The (proper) final test set value multiplier is %.8f' % portfolio_value)
+"""
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

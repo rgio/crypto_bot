@@ -213,7 +213,7 @@ def get_data(array,window_size,stride):
 
 def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = hparams.geometric_decay	# Make p larger to favor more recent data
+	p = hparams.geometric_decay / max_index  # Make p larger to favor more recent data
 	k = np.random.geometric(p)
 	while k > max_index-1:
 		k = np.random.geometric(p)
@@ -233,12 +233,12 @@ def get_specific_price_batch(prices, price_changes, start_index, hparams, params
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
 	return p, p_c, start_index
 
-def get_next_price_batch(prices, price_changes, training_step, hparams):
+def get_next_price_batch(prices, price_changes, training_step, hparams, params):
 	if hparams.batch_sampling_method == 'random_geometric':
 		start_index = get_random_batch_index_geometric(prices.shape[0]-hparams.batch_size, hparams)
 	elif hparams.batch_sampling_method == 'random_uniform':
 		start_index = get_random_batch_index_uniform(prices.shape[0]-hparams.batch_size)
 	elif hparams.batch_sampling_method == 'systematic_uniform':
 		start_index = training_step % (prices.shape[0]-hparams.batch_size-1) + 1
-	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams)
+	p, p_c, start_index = get_specific_price_batch(prices, price_changes, start_index, hparams, params)
 	return p, p_c, start_index

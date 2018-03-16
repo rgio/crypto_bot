@@ -1,6 +1,0 @@
-The files with lower case names and _test (e.g., btc_etc_test.csv) are used
-in the testing process and all 11 of the files contain the same time window
-of prices relative to bitcoin 
-
-Example of command used to make them:
-awk -F',' '{if(NR>1 && $1>1482123599 && $1<1497913201){print $0}}' BTC_ETH.csv > btc_eth_test.csv

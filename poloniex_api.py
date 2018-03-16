@@ -11,12 +11,15 @@ from poloniex import Poloniex
 import numpy as np
 # from poloniex import Poloniex, Coach
 
+import functions as fn
+
 key = 'MRRIC3WC-9UX18G52-V46IOUH5-45VLK5VW'
 secret = 'b0cfae0d7a2c3a66067c2cd3c2807c28867dfecea57df84cd07d5c7773577b6248f019fa09955f4a90a0e976081f26b1515ebc58eed4e618941c5c737e6ab200'
 
 FETCH_URL = "https://poloniex.com/public?command=returnChartData&currencyPair=%s&start=%d&end=%d&period=300"
 TICKER_URL = "https://poloniex.com/public?command=returnTicker"
 DATA_DIR = "data"
+fn.check_path(DATA_DIR)
 COLUMNS = ["date","high","low","open","close","volume","quoteVolume","weightedAverage"]
 COINS_INDICES = {"BTC":0,"BTS":1,"ZEC":2,"STRAT":3,"XEM":4,"STEEM":5,"LTC":6,"ETC":7,"XRP":8,"XMR":9,"DASH":10,"ETH":11,"STR":12,"LSK":13,"DOGE":14,"SC":15,"SYS":16,"DGB":17,"MAID":18,"NXT":19,"BCN":20}
 #PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH"] # 12 total coins
@@ -139,8 +142,9 @@ def get_balances():
 def fetch_data(start_time=1482123600,end_time=9999999999,path=DATA_DIR, test=False):
 	if test:
 		start_time = 1482123600
-		end_time = 1482123600 + 2 * 86400
+		end_time = 1482123600 + 15 * 86400
 		path = 'data/test' # 2 days
+	fn.check_path(path)
 	for pair in PAIRS:
 		datafile = os.path.join(path, pair+"_test"+".csv")
 		timefile = os.path.join(path, pair+"_test")
@@ -156,14 +160,15 @@ def fetch_data(start_time=1482123600,end_time=9999999999,path=DATA_DIR, test=Fal
 		outf = open(datafile, "w")
 		df.to_csv(outf, index=False, columns=COLUMNS)
 		outf.close()
+		# TODO: write a function in 'functions.py' and use to check
 		print('completed: %s' % pair)
 		#time.sleep(30)
 
-
+# TODO: remove hardcoding DATA_DIR
 def get_data(pair):
 	datafile = os.path.join(DATA_DIR, pair+".csv")
 	timefile = os.path.join(DATA_DIR, pair)
-
+	fn.check_path(datafile)
 	if os.path.exists(datafile):
 		newfile = False
 		start_time = int(open(timefile).readline()) + 1
@@ -331,9 +336,6 @@ def createTimeStamp(datestr, format="%Y-%m-%d %H:%M:%S"):
 
 
 def main():
-	if not os.path.exists(DATA_DIR):
-		os.mkdir(DATA_DIR)
-
 	df = pd.read_json("https://poloniex.com/public?command=return24hVolume")
 	pairs = [pair for pair in df.columns if pair.startswith('BTC')]
 	print(pairs)
