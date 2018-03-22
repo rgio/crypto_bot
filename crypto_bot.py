@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import ipdb
+#import ipdb
 import numpy as np
 import tensorflow as tf
 from keras.callbacks import TensorBoard
@@ -17,6 +17,7 @@ import json
 import numpy as np
 import tensorflow as tf
 import pdb
+import pickle
 
 # Imports of our own code
 import hparams as hp
@@ -55,6 +56,9 @@ class CryptoBot:
 		# master_entry = {timestamp: hparam_dict}
 		# with open('{0}hparams_master.json'.format(basedir), 'w') as master_file:
 		# 	json.dump(master_entry, master_file)
+
+#			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
+#			basedir = 'tmp/output' + ('/%s'% timestamp)
 
 		callback_log = TensorBoard(
 			histogram_freq=0,
@@ -144,10 +148,6 @@ class CryptoBot:
 		path_to_best_model = path_to_model_dir + '/cnn_best_model.ckpt'
 		best_val_value = 0.0 # used to save
 
-		# Random weights for 1st training step
-		random_weights = np.random.rand(hparams.batch_size, params.num_coins+1)
-		val_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
-
 		# Stores our portfolio weights
 		memory_array = np.random.rand(train_data.shape[0], params.num_coins+1)
 
@@ -157,6 +157,7 @@ class CryptoBot:
 		with tf.Session() as sess:
 			sess.run(tf.global_variables_initializer())
 			batch = pdata.get_next_price_batch(train_data, train_labels, 0, hparams, params)
+			#pdb.set_trace()
 			input_weights = weights.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: memory_array[:hparams.batch_size], batch_size: hparams.batch_size, keep_prob: 1.0})
 			memory_array[:hparams.batch_size] = input_weights
@@ -173,26 +174,36 @@ class CryptoBot:
 					train_accuracy = accuracy.eval(feed_dict={input_prices: batch[0], labels: batch[1],
 						init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: 1.0})
 					print('Step = %d\nBatch = %d\nTrain_accuracy = %g\nTrain_value = %g' % (i, batch[2], train_accuracy, train_value))
-				if i % 10000 == 0:
-					val_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
-							init_weights: val_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
-					final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
-						init_weights: val_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
-					val_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
-						init_weights: val_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
-					print('Step %d, validation_size %d, validation_value %g' % (i, validation_labels.shape[0], final_pvm))
-					if (final_pvm > best_val_value):
-						save_path_best_model = saver.save(sess, path_to_best_model)
-						best_val_value = final_pvm
+				if i % 10000 == 0 or i == hparams.num_training_steps-1:
+					validation_weights = np.zeros((1, validation_labels.shape[1]))
+					validation_weights[0,0]  = 1.0
+					v = np.ones((validation_labels.shape[0]))
+					portfolio_value = 1.0
+					for i in range(0, validation_labels.shape[0]):
+						v_labels = np.reshape(validation_labels[i,:], (1, validation_labels.shape[1]))
+						v_data = np.reshape(validation_data[i,:], (1, validation_data.shape[1], validation_data.shape[2], validation_data.shape[3]))
+						v[i] = final_value.eval(feed_dict={input_prices: v_data, labels: v_labels, 
+									init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
+						portfolio_value = portfolio_value*v[i]
+						validation_weights = weights.eval(feed_dict={input_prices: v_data, labels: v_labels, 
+							init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
+					print('Step %d, validation_size %d, validation_value %g' % (i, validation_labels.shape[0], portfolio_value))
+					if (portfolio_value > best_val_value):
+						save_path_best_model = saver.save(sess, path_to_best_model) 
+						best_val_value = portfolio_value
+						models_dict = get_models_dict()
+						models_dict[best_val_value] = save_path_best_model
+						set_models_dict(models_dict)
+						np.savetxt(path_to_model_dir + 'proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 						print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
-				train_step.run(feed_dict={input_prices: batch[0], labels: batch[1],
+					train_step.run(feed_dict={input_prices: batch[0], labels: batch[1],
 					init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: hparams.dropout_keep_prob})
 
 			# Save the results
 			save_path_final_model = saver.save(sess, path_to_final_model)
 			print('The final model weights are saved in %s' % save_path_final_model)
 
-			# Print the validation results
+			"""# Print the validation results
 			random_weights = np.random.rand(validation_labels.shape[0], validation_labels.shape[1])
 			input_weights = weights.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 					init_weights: random_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
@@ -204,7 +215,7 @@ class CryptoBot:
 				init_weights: val_weights,
 				batch_size: validation_labels.shape[0],
 				keep_prob: 1.0})
-			print(f'The accuracy (with val_weights) on the validation set is {self.validation_accuracy}')
+			print('The accuracy (with val_weights) on the validation set is {0}'.format(self.validation_accuracy))
 			final_pvm = final_value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
 				init_weights: input_weights, batch_size: validation_labels.shape[0], keep_prob: 1.0})
 			pvm = value.eval(feed_dict={input_prices: validation_data, labels: validation_labels,
@@ -229,11 +240,17 @@ class CryptoBot:
 			portfolio_weights = weights.eval(feed_dict={input_prices: test_data, labels: test_labels,
 				init_weights: input_weights, batch_size: test_labels.shape[0], keep_prob: 1.0})
 			prnt.print_model_results(final_pvm, pvm, portfolio_weights, path_to_model_dir, 'test')
-			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))
+			#print('Test trading period = %d steps and %.2f days' % (price_change.shape[0], price_change.shape[0]/48.0))"""
 
 	def get_value(self):
 		return self.final_pvm
 
+	def get_models_dict(self):
+		try:
+			with open('models_dict.pickle', 'rb') as handle:
+    			return pickle.load(handle)
+    	except:
+    		return {}
 
 			# Proper validation test
 			# validation_weights = np.zeros((1, validation_labels.shape[1]))
@@ -371,10 +388,10 @@ def main(_):
 					print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], 
 				init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: hparams.dropout_keep_prob})
+    def set_models_dict(d):
+		with open('models_dict.pickle', 'wb') as handle:
+			pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-		# Save the model
-		save_path_final_model = saver.save(sess, path_to_final_model)
-		print('The final model weights are saved in %s' % save_path_final_model)
 
 		# Proper test set test
 		test_weights = np.zeros((1, test_labels.shape[1]))

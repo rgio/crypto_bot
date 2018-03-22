@@ -18,7 +18,7 @@ import poloniex_api as pol
 # Global variable
 # change this to false to use most recent training run
 # change this to the switch the model that gets restored
-TIME_STAMP = False
+TIME_STAMP = '2018-03-05_01-17'
 
 # Helper functions
 def initialize_weight(path_to_model_dir):
@@ -42,6 +42,19 @@ def get_path_to_model_dir(time_stamp=False):
 			time_stamp = f.read().strip()
 		return 'tmp/crypto_bot/cnn_model_' + time_stamp + '/'
 
+def get_best_model_paths(params):
+	try:
+		with open('models_dict.pickle', 'rb') as handle:
+			d = pickle.load(handle)
+			paths = []
+			count = 0
+			for key in reversed(sorted(d.keys())):
+				paths.append(d[key])
+				count +=1
+				if(count>=params.live_bot_num_models)break
+    	except:
+    		return []
+
 # Main function to be used for live trading
 def main():
 	# Current times
@@ -53,6 +66,7 @@ def main():
 	# Create variables that will be restored
 	path_to_model_dir = get_path_to_model_dir(TIME_STAMP)
 	hparams = initialize_hparams(path_to_model_dir)
+	params = hp.set_params()
 	input_prices = tf.placeholder(tf.float32, [None, hparams.num_coins, hparams.window_size, hparams.num_input_channels])
 	labels = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
 	init_weights = tf.placeholder(tf.float32, [None, hparams.num_coins+1])
@@ -64,15 +78,24 @@ def main():
 
 	with tf.Session() as sess:
 		# Restore model from disk.
-		path_to_ckpt_files = path_to_model_dir + 'cnn_best_model.ckpt'
-		saver.restore(sess, path_to_ckpt_files)
-		print('Model restored from %s\n' %  path_to_ckpt_files)
+		#path_to_ckpt_files = path_to_model_dir + 'cnn_best_model.ckpt'
+		#saver.restore(sess, path_to_ckpt_files)
+		#print('Model restored from %s\n' %  path_to_ckpt_files)
+		data, dummy_labels = pdata.get_current_window()
+		input_weights = pol.get_weights()
+		best_model_paths = get_best_model_paths(params)
 		while True:
-			data, dummy_labels = pdata.get_current_window()
-			input_weights = pol.get_weights()
-			target_portfolio_weights = weights.eval(feed_dict={input_prices: data, labels: dummy_labels,
-				init_weights: input_weights, batch_size: 1, keep_prob: 1.0})
-			portfolio_value, estimated_reduced_pv = pol.get_new_portfolio(target_portfolio_weights)
+			target_weights = []
+			for path in best_model_paths:
+				path_to_ckpt_files = path + 'cnn_best_model.ckpt'
+				saver.restore(sess,path_to_ckpt_files)
+				print('Model restored from %s\n' % path_to_ckpt_files)
+				target_portfolio_weights = weights.eval(feed_dict={input_prices: data, labels: dummy_labels,
+					init_weights: input_weights, batch_size: 1, keep_prob: 1.0})
+				target_weights.append(target_portfolio_weights)
+			target_weights = np.array(target_weights)
+			average_weights = np.average(target_weights,axis=1)
+			portfolio_value, estimated_reduced_pv = pol.get_new_portfolio(average_weights)
 			print("Trade completed.\nEst portfolio value = %.12f\nNew portfolio value = %.12f\n" % (estimated_reduced_pv, portfolio_value))
 			time.sleep(1800)
 

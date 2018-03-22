@@ -11,7 +11,7 @@ from skopt.utils import use_named_args
 from skopt.plots import plot_convergence
 
 # local imports
-import crypto_bot
+#import crypto_bot
 
 ################################################### SPECIFY TESTING ###################################################
 																													  #
@@ -55,8 +55,8 @@ def set_params() -> HParams:
 	params = HParams(coin_pairs = ["BTC_BTS", "BTC_ZEC", "BTC_STRAT", "BTC_XEM", "BTC_STEEM", "BTC_LTC", "BTC_ETC",
 								   "BTC_XRP", "BTC_XMR", "BTC_DASH", "BTC_ETH", "BTC_STR", "BTC_LSK", "BTC_DOGE",
 								   "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"],
-					 num_input_channels=4,
-					 len_conv3_filters=1,)
+					 num_input_channels=5,
+					 live_bot_num_models=5,)
 	params.add_hparam("num_coins", len(params.coin_pairs))
 	return params
 
@@ -123,7 +123,7 @@ def run_bot(batch_sampling_method,
 def gen_hparam_str(hparam_dict) -> str:
 	hparam_str = '/hparams'
 	for hparam, value in hparam_dict.items():
-		hparam_str += (f'_{hparam}-{value}')
+		hparam_str += ('_{0}-{1}'.format(hparam, value))
 	return hparam_str
 
 def gen_dir_str() -> str:
@@ -180,3 +180,4 @@ class HyperparameterOptimizer:
 
 if __name__ == '__main__':
 	main()
+

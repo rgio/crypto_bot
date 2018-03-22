@@ -38,18 +38,24 @@ def read_data(directory=DEFAULT_DIRECTORY, pairs=PAIRS):
 			dates.append( (prices[key][1][0].split(',')[0], key)  )
 
 		high_price_array = [[]]
+		low_price_array = [[]]
 		open_price_array = [[]]
 		volume_array = [[]]
 		for key in prices.keys():
 			high_price_array.append([row[0].split(',')[1] for row in prices[key]][1:])
+			low_price_array.append([row[0].split(',')[2] for row in prices[key]][1:])
 			open_price_array.append([row[0].split(',')[3] for row in prices[key]][1:])
 			volume_array.append([row[0].split(',')[5] for row in prices[key]][1:])
 		high_price_array = high_price_array[1:]
+		low_price_array = low_price_array[1:]
 		open_price_array = open_price_array[1:]
 		volume_array = volume_array[1:]
 		max_length = len(max(high_price_array, key = lambda x: len(x)))
 
 		for coin_prices in high_price_array:
+			while(len(coin_prices)<max_length):
+				coin_prices.insert(0, coin_prices[0])
+		for coin_prices in low_price_array:
 			while(len(coin_prices)<max_length):
 				coin_prices.insert(0, coin_prices[0])
 		for coin_prices in open_price_array:
@@ -62,10 +68,11 @@ def read_data(directory=DEFAULT_DIRECTORY, pairs=PAIRS):
 		#pdb.set_trace()
 		global_volume_array = np.array(volume_array, dtype=np.float32)
 		global_high_price_array = np.array(high_price_array, dtype=np.float32)
+		global_low_price_array = np.array(low_price_array, dtype=np.float32)
 		global_open_price_array = np.array(open_price_array, dtype=np.float32)
 		global_dp_dt_array = calc_dp_dt_array(global_high_price_array, 1.0)
 
-		input_array = np.stack([global_high_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
+		input_array = np.stack([global_high_price_array,global_low_price_array,global_open_price_array,global_volume_array,global_dp_dt_array],axis=2)
 		#pdb.set_trace()
 
 		sampled_array = np.zeros( (input_array.shape[0],int(input_array.shape[1]/6+1),input_array.shape[2]) )
@@ -231,6 +238,7 @@ def get_specific_price_batch(prices, price_changes, start_index, hparams, params
 	p_c = np.reshape(p_c, (hparams.batch_size, params.num_coins))
 	btc_btc = np.ones( (1, hparams.batch_size), dtype=np.float32)
 	p_c = np.insert(p_c, 0, btc_btc, axis=1)
+	#pdb.set_trace()
 	return p, p_c, start_index
 
 def get_next_price_batch(prices, price_changes, training_step, hparams, params):

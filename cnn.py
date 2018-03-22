@@ -52,7 +52,7 @@ def cnn_model(x, init_weights, hparams, params):
 		
 	# Second convolution layer
 	with tf.name_scope('conv2'):
-		W_conv2 = weight_variable([1, hparams.window_size-hparams.len_conv1_filters+1, hparams.num_conv1_features, hparams.num_conv2_features])
+		W_conv2 = weight_variable([1, hparams.window_size-hparams.conv1_filter_length+1, hparams.num_conv1_features, hparams.num_conv2_features])
 		b_conv2 = bias_variable([hparams.num_conv2_features])
 		if hparams.conv_layers_separable:
 			P_conv2 = weight_variable([1, 1, hparams.num_conv2_features*hparams.num_conv1_features, hparams.num_conv2_features])
@@ -94,7 +94,7 @@ def cnn_model(x, init_weights, hparams, params):
 			# First fully connected layer
 			with tf.name_scope('two_fc_layers_fc1'):
 				W_fc1 = weight_variable([params.num_coins*(hparams.num_conv2_features+1), hparams.num_fc1_neurons])
-				b_fc1 = weight_variable([params.num_fc1_neurons])
+				b_fc1 = weight_variable([hparams.num_fc1_neurons])
 				h_fc1 = tf.nn.relu(tf.matmul(h_conv2_weights_dropout_flat, W_fc1) + b_fc1)
 			# Second and last fully connected layer 
 			with tf.name_scope('two_fc_layers_fc2'):
