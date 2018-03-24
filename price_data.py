@@ -7,17 +7,25 @@ import numpy as np
 import csv
 import pdb
 import time
-from poloniex_api import *
+import poloniex_api as pnx
 
 global_price_array = []
-def read_data(directory='data/'):
+DEFAULT_DIRECTORY = 'data/'
+PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
+   "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
+
+
+
+def read_data(directory=DEFAULT_DIRECTORY, pairs=PAIRS):
 	# if we have already calculated the global price array, read it from txt
+	# TODO: The second line of the try statement can never be executed and the except clause is executed no matter what.
+	# TODO: Maybe we can remove 'raise Exception('err')'? This syntax is confusing and exception handling can be expensive
 	try:
 		raise Exception('err')
 		global_price_array = np.genfromtxt('global_price')
 	except:
 		prices = {}
-		for pair in PAIRS:
+		for pair in pairs:
 			with open(directory+pair+"_test.csv") as file:
 				reader = csv.reader(file, delimiter=' ', quotechar='|')
 				pair_info = []
@@ -142,7 +150,7 @@ def calc_optimal_portfolio(price_change, prefix):
 def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
-	fetch_data(start_time=t0,path='live_data/')
+	pnx.fetch_data(start_time=t0,path='live_data/')
 	array = read_data('live_data/')
 	array = array.astype(np.float32)
 	data = array[:,-51:-1,:]
@@ -212,7 +220,7 @@ def get_data(array,window_size,stride):
 
 def get_random_batch_index_geometric(max_index, hparams):
 	# Stochastic sampling of geometric decay, f(k) = (p)(1-p)**(k-1)
-	p = hparams.geometric_decay	# Make p larger to favor more recent data
+	p = hparams.geometric_decay / max_index  # Make p larger to favor more recent data
 	k = np.random.geometric(p)
 	while k > max_index-1:
 		k = np.random.geometric(p)

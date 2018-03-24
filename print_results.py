@@ -18,7 +18,8 @@ def print_model_results(final_pvm, pvm, weights, path_to_model_dir, prefix):
 	print('The final %s portfolio multiplier is %g' % (prefix, final_pvm))
 
 
+# TODO: FIX THIS
 def print_hyperparameters(hparams, path_to_model_dir):
-	with open(path_to_model_dir+'hyperparameters.json', 'w') as f:
-		f.write(hparams.to_json())
+	# with open(path_to_model_dir+'hyperparameters.json', 'w') as f:
+	# 	f.write(hparams.to_json())
 	return
