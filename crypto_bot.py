@@ -45,18 +45,14 @@ class CryptoBot:
 		fn.check_path(basedir)
 
 		# save hparams with model
-		# TODO: FIX THIS
-		# with open('{0}hparams_{1}.json'.format(basedir, timestamp), 'w') as hparam_file:
-		# 	hparam_file.write(hparams.to_json())
-		#
-		# # add hparams to dictionary of models
-		# hparam_dict = hparams.values()
-		# master_entry = {timestamp: hparam_dict}
-		# with open('{0}hparams_master.json'.format(basedir), 'w') as master_file:
-		# 	json.dump(master_entry, master_file)
+		with open('{0}hparams_{1}.pickle'.format(basedir, timestamp), 'wb'):
+		 	pickle.dump(hparams.values(), handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-#			timestamp = '{:%Y-%m-%d_%H-%M}'.format(datetime.datetime.now())
-#			basedir = 'tmp/output' + ('/%s'% timestamp)
+		# add hparams to dictionary of models
+		hparam_dict = hparams.values()
+		master_entry = {timestamp: hparam_dict}
+		with open('{0}hparams_master.pickle'.format(basedir), 'wb'):
+			pickle.dump(master_entry, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 		callback_log = TensorBoard(
 			histogram_freq=0,
@@ -243,9 +239,24 @@ class CryptoBot:
 	def get_value(self):
 		return self.final_pvm
 
-	def get_models_dict(self):
-		if os.path.isfile('models_dict.pickle'):
+	@staticmethod
+	def set_models_dict(d):
+		with open('models_dict.pickle', 'wb') as handle:
+			pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+	@staticmethod
+	def get_models_dict():
+		try:
 			with open('models_dict.pickle', 'rb') as handle:
+    			return pickle.load(handle)
+    	except:
+    		return {}
+
+	@staticmethod
+	def get_hparams_dict():
+		try:
+
+      with open('models_dict.pickle', 'rb') as handle:
 				models_dict = pickle.load(handle)
 			return models_dict
 		else:
