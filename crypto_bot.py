@@ -1,25 +1,23 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-#import ipdb
-import numpy as np
-import tensorflow as tf
-from keras.callbacks import TensorBoard
 
-# Imports of general code
 import sys
+import os
 import datetime
 import tempfile
 import pathlib
 import argparse
 import json
-
-import numpy as np
-import tensorflow as tf
 import pdb
 import pickle
 
-# Imports of our own code
+import numpy as np
+import tensorflow as tf
+from keras.callbacks import TensorBoard
+
+
+# Local Imports
 import hparams as hp
 import price_data as pdata
 import cnn
@@ -191,9 +189,9 @@ class CryptoBot:
 					if (portfolio_value > best_val_value):
 						save_path_best_model = saver.save(sess, path_to_best_model) 
 						best_val_value = portfolio_value
-						models_dict = get_models_dict()
+						models_dict = self.get_models_dict()
 						models_dict[best_val_value] = save_path_best_model
-						set_models_dict(models_dict)
+						self.set_models_dict(models_dict)
 						np.savetxt(path_to_model_dir + 'proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 						print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
 					train_step.run(feed_dict={input_prices: batch[0], labels: batch[1],
@@ -246,11 +244,12 @@ class CryptoBot:
 		return self.final_pvm
 
 	def get_models_dict(self):
-		try:
+		if os.path.isfile('models_dict.pickle'):
 			with open('models_dict.pickle', 'rb') as handle:
-    			return pickle.load(handle)
-    	except:
-    		return {}
+				models_dict = pickle.load(handle)
+			return models_dict
+		else:
+			return {}
 
 			# Proper validation test
 			# validation_weights = np.zeros((1, validation_labels.shape[1]))
@@ -267,6 +266,7 @@ class CryptoBot:
 			#   		init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
 			# np.savetxt('tmp/proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
 			# print('The (proper) final validation set value multiplier is %.8f' % portfolio_value)
+
 """
 def main(_):
 	# Set up the models hyperparameters
@@ -388,7 +388,7 @@ def main(_):
 					print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
 			train_step.run(feed_dict={input_prices: batch[0], labels: batch[1], 
 				init_weights: input_weights, batch_size: hparams.batch_size, keep_prob: hparams.dropout_keep_prob})
-    def set_models_dict(d):
+	def set_models_dict(d):
 		with open('models_dict.pickle', 'wb') as handle:
 			pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

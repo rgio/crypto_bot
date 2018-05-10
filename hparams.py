@@ -11,7 +11,7 @@ from skopt.utils import use_named_args
 from skopt.plots import plot_convergence
 
 # local imports
-#import crypto_bot
+import crypto_bot
 
 ################################################### SPECIFY TESTING ###################################################
 																													  #
