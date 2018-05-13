@@ -110,13 +110,13 @@ def run_bot(batch_sampling_method,
 	hparams = HParams(**inspect.getargvalues(inspect.currentframe())[3])
 	hparam_dict = hparams.values()
 	print(hparam_dict)
-	bot = crypto_bot.CryptoBot(hparams, test=TEST, tuning=True)
+	bot = crypto_bot.CryptoBot(hparams, set_params(), test=TEST, tuning=True)
 	cost = -bot.get_value()
 	master_entry = {}
 	with open('hparams_master.pickle', 'rb') as handle:
 		master_entry = pickle.load(handle)
 	master_entry[cost] = hparam_dict
-	with open('hparams_master.pickle'.format(basedir), 'wb'):
+	with open('hparams_master.pickle'.format(basedir), 'wb') as handle:
 		pickle.dump(master_entry, handle, protocol=pickle.HIGHEST_PROTOCOL)
 	# TODO: figure out another method of logging because this can't be a part of the class
 	if cost < self.lowest_cost:
