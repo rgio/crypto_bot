@@ -52,7 +52,7 @@ def cnn_model(x, init_weights, hparams, params):
 		
 	# Second convolution layer
 	with tf.name_scope('conv2'):
-		W_conv2 = weight_variable([1, hparams.window_size-hparams.conv1_filter_length+1, hparams.num_conv1_features, hparams.num_conv2_features])
+		W_conv2 = weight_variable([1, hparams.window_size-hparams.len_conv1_filters+1, hparams.num_conv1_features, hparams.num_conv2_features])
 		b_conv2 = bias_variable([hparams.num_conv2_features])
 		if hparams.conv_layers_separable:
 			P_conv2 = weight_variable([1, 1, hparams.num_conv2_features*hparams.num_conv1_features, hparams.num_conv2_features])
@@ -66,8 +66,8 @@ def cnn_model(x, init_weights, hparams, params):
 
 	# Dropout on 2nd convolution layer during training
 	with tf.name_scope('dropout'):
-	  	keep_prob = tf.placeholder(tf.float32)
-	  	h_conv2_weights_dropout = tf.nn.dropout(h_conv2_weights, keep_prob)
+		keep_prob = tf.placeholder(tf.float32)
+		h_conv2_weights_dropout = tf.nn.dropout(h_conv2_weights, keep_prob)
 
 	# Three possible endings for this cnn model: third_conv_layer, one_fc_layer, two_fc_layers
 	if hparams.model_ending == 'third_conv_layer': 
@@ -110,7 +110,7 @@ def cnn_model(x, init_weights, hparams, params):
 	
 	# Final portfolio weight tensor
 	with tf.name_scope('weights'):
-	 	weights = tf.nn.softmax(final_layer_cash, name="output_tensor")
+		weights = tf.nn.softmax(final_layer_cash, name="output_tensor")
 
 	return weights, keep_prob
 
