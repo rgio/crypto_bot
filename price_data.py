@@ -123,7 +123,7 @@ def calc_uniform_portfolio(price_change):
 	print('The uniform portfolio value with no transaction costs = ', uniform_portfolio_value)
 	return uniform_portfolio_value
 
-def calc_optimal_portfolio(price_change, prefix):
+def calc_optimal_portfolio(price_change, save_path):
 	# optimal portfolio has entire portfolio in the asset with largest price change
 	opt_porfolio_index = np.argmax(price_change, axis=1)
 	opt_portfolio_value = 1.0
@@ -137,12 +137,12 @@ def calc_optimal_portfolio(price_change, prefix):
 				opt_portfolio_value *= price_change[i,j]
 			else:
 				optimal_portfolio[i,j] = 0.0
-	np.savetxt(prefix + '_labels.out', price_change, fmt='%.8f', delimiter=' ')
-	np.savetxt(prefix + '_optimal_portfolio_index.out', opt_porfolio_index, fmt='%d')
-	np.savetxt(prefix + '_optimal_portfolio_return.out', optimal_return, fmt='%.8f')
-	np.savetxt(prefix + '_optimal_portfolio.out', optimal_portfolio, fmt='%.1f', delimiter=' ')
+	np.savetxt(save_path + 'labels.out', price_change, fmt='%.8f', delimiter=' ')
+	np.savetxt(save_path + 'optimal_portfolio_index.out', opt_porfolio_index, fmt='%d')
+	np.savetxt(save_path + 'optimal_portfolio_return.out', optimal_return, fmt='%.8f')
+	np.savetxt(save_path + 'optimal_portfolio.out', optimal_portfolio, fmt='%.1f', delimiter=' ')
 	print('')
-	print('Total %s trading period = %d steps and %.2f days' % (prefix, price_change.shape[0], price_change.shape[0]/48.0))
+	print('Directory = %s trading period = %d steps and %.2f days' % (save_path, price_change.shape[0], price_change.shape[0]/48.0))
 	print('The optimal portfolio value with no transaction costs = ', opt_portfolio_value)
 	calc_uniform_portfolio(price_change)
 	return optimal_portfolio, opt_portfolio_value

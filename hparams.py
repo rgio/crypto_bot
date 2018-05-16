@@ -40,14 +40,16 @@ def set_hparams(test=False) -> HParams:
 		conv_layers_separable=True,
 		len_conv1_filters=3,
 		num_conv1_features=8,
+		# TODO: possibly have len_conv2_filters not just be the entire length as it currently is
+		# len_conv2_filters = xxx
 		num_conv2_features=32,
 		num_fc1_neurons=12,   # only for option two_fc_layers; it is set to num_coins for one_fc_layer in cnn.py
 		model_ending='one_fc_layer',   # options: two_fc_layers, one_fc_layer, third_conv_layer
 		dropout_keep_prob=0.5,
 	)
 	if test:
-		hparams.set_hparam('batch_size', 20)
-		hparams.set_hparam('num_training_steps', 3)
+		hparams.set_hparam('batch_size', 30)
+		hparams.set_hparam('num_training_steps', 4)
 	return hparams
 
 
@@ -56,7 +58,8 @@ def set_params() -> HParams:
 								   "BTC_XRP", "BTC_XMR", "BTC_DASH", "BTC_ETH", "BTC_STR", "BTC_LSK", "BTC_DOGE",
 								   "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"],
 					 num_input_channels=5,
-					 live_bot_num_models=5,)
+					 live_bot_num_models=5,
+					 len_conv3_filters=1,) # currently only 1x1 filters for conv3 possible
 	params.add_hparam("num_coins", len(params.coin_pairs))
 	return params
 
@@ -72,7 +75,7 @@ def init_search_space_dict(test=False) -> dict:
 		dim_learning_rate=space.Real(low=1e-6, high=1e-2, prior='log-uniform', name='learning_rate'),
 		dim_geometric_decay=space.Real(low=1e-6, high=1, prior='log-uniform', name='geometric_decay'),
 		dim_conv_layers_seperable=space.Categorical(categories=[True, False], name='conv_layers_separable'),
-		dim_len_conv1_filters=space.Integer(low=2, high=12, name='len_conv1_filters'),
+		dim_len_conv1_filters=space.Integer(low=2, high=10, name='len_conv1_filters'),
 		dim_num_conv1_features=space.Integer(low=1, high=64, name='num_conv1_features'),
 		dim_num_conv2_features=space.Integer(low=8, high=128, name='num_conv2_features'),
 		dim_num_fc1_neurons=space.Integer(low=8, high=32, name='num_fc1_neurons'),
@@ -82,7 +85,9 @@ def init_search_space_dict(test=False) -> dict:
 	)
 	if test:
 		search_space_dict.update({'dim_batch_size': space.Integer(low=10, high=30, name='batch_size'),
-								  'dim_num_training_steps': space.Integer(low=2, high=4, name='num_training_steps')})
+								  'dim_num_training_steps': space.Integer(low=2, high=4, name='num_training_steps'),
+								  'dim_window_size': space.Integer(low=10, high=50, name='window_size'),
+								  'dim_stride': space.Integer(low=1, high=2, name='stride')})
 	return search_space_dict
 
 
@@ -113,14 +118,15 @@ def run_bot(batch_sampling_method,
 	bot = crypto_bot.CryptoBot(hparams, set_params(), test=TEST, tuning=True)
 	cost = -bot.get_value()
 	master_entry = {}
-	with open('hparams_master.pickle', 'rb') as handle:
-		master_entry = pickle.load(handle)
-	master_entry[cost] = hparam_dict
-	with open('hparams_master.pickle'.format(basedir), 'wb') as handle:
-		pickle.dump(master_entry, handle, protocol=pickle.HIGHEST_PROTOCOL)
+	lowest_cost = 1.0
+	#with open('hparams_master.pickle', 'rb') as handle:
+	#	master_entry = pickle.load(handle)
+	#master_entry[cost] = hparam_dict
+	#with open('hparams_master.pickle'.format(basedir), 'wb') as handle:
+	#	pickle.dump(master_entry, handle, protocol=pickle.HIGHEST_PROTOCOL)
 	# TODO: figure out another method of logging because this can't be a part of the class
-	if cost < self.lowest_cost:
-		self.lowest_cost = cost
+#	if cost < self.lowest_cost:
+#		self.lowest_cost = cost
 	return cost
 
 
@@ -141,7 +147,7 @@ def gen_dir_str() -> str:
 class HyperparameterOptimizer:
 	def __init__(self, test=False, hparam_dict=None, search_dim_dict=None):
 		self.test = test
-		self.test = test
+		self.test = test # Remove one of these?
 		self.lowest_cost = 1
 		if not (hparam_dict and search_dim_dict):
 			self.hparam_dict = self.init_hparam_dict()
