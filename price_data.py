@@ -8,6 +8,7 @@ import csv
 import pdb
 import time
 import poloniex_api as pnx
+from sklearn.preprocessing import Imputer
 
 global_price_array = []
 DEFAULT_DIRECTORY = 'data/'
@@ -179,7 +180,7 @@ def get_current_window():
 	return data, labels
 
 def split_data(global_price_array, train_size, val_size, test_size):
-	# TODO: Is this a good way to split up the global_price_array
+	# TODO: Is this the best way to split up the data?
 	total_time_steps = global_price_array.shape[1]
 	train_len = int(total_time_steps * train_size)
 	val_len = int(total_time_steps * val_size)
@@ -190,57 +191,90 @@ def split_data(global_price_array, train_size, val_size, test_size):
 	test = global_price_array[:, train_len + val_len:]
 	return train, val, test
 
+def nan_helper(array):
+    """Helper to handle indices and logical indices of NaNs.
 
-def get_local_prices(window_size, stride, global_price_array, current_step):
-	start = current_step*stride
-	stop = start+window_size
-	if(stop<global_price_array.shape[1]):
-		local = global_price_array[:,start:stop]
-		last = local[:,(window_size-1):window_size]
-		normalized = np.divide(local,np.abs(last))
-		normalized[np.isnan(normalized)==True]=0.01
-		normalized[np.isinf(normalized)==True]=0.01
-		shift = global_price_array[:,start+1:stop+1]
-		a = shift[:,(window_size-1):window_size]
-		normalized_shift = np.divide(shift,a)
-		normalized_shift[np.isnan(normalized_shift)==True]=0.01
-		normalized_shift[np.isinf(normalized_shift)==True]=0.01
-		# price_change = np.divide(normalized_shift,normalized)
-		price_change = np.divide(shift, local)
-		price_change[np.isnan(price_change)==True]=0.01
-		price_change[np.isinf(price_change)==True]=0.01
-		price_change = price_change[:,:,0]#remove volume and open
+    args:
+        array (np.ndarray): array with possible np.nan values
+    
+    Output:
+        nans (int): logical indices of NaNs
+        index (function): a function, with signature indices= index(logical_indices),
+        	to convert logical indices of NaNs to 'equivalent' indices
+    Example:
+        >>> # linear interpolation of NaNs
+        >>> nans, x= nan_helper(y)
+        >>> y[nans]= np.interp(x(nans), x(~nans), y[~nans])
+    """
 
-		"""high_prices = normalized[:,:,0]
-		dp_dt_array = np.zeros(high_prices.shape)
-		for j in range(high_prices.shape[1]):
-			if j == 0:
-				dp_dt_array[:,j] = high_prices[:,j+1]-high_prices[:,j]
-			elif j == high_prices.shape[1]-1:
-				dp_dt_array[:,j] = high_prices[:,j]-high_prices[:,j-1]
-			elif (j == 1 or j == high_prices.shape[1]-2):
-				dp_dt_array[:,j] = (high_prices[:,j+1]-high_prices[:,j-1])/2.0
-			else:
-				dp_dt_array[:,j] = (8.0*(high_prices[:,j+1]-high_prices[:,j-1]) - (high_prices[:,j+2]-high_prices[:,j-2])/12.0 )
-		last = np.reshape(dp_dt_array[:,high_prices.shape[1]-1],(high_prices.shape[0],1))
-		dp_dt_normalized = np.divide(dp_dt_array,np.abs(last))
-		dp_dt_normalized[np.isnan(dp_dt_normalized)==True]=0.01
-		dp_dt_normalized[np.isinf(dp_dt_normalized)==True]=0.01
+    return np.isnan(y), lambda z: z.nonzero()[0]
 
-		normalized = np.stack([normalized[:,:,0],normalized[:,:,1],normalized[:,:,2],dp_dt_normalized],axis=2)"""
+def impute_missing_and_inf(array, default=1.0):
+	"""
+	Imputes missing or infinite values in array by trying to average the
+	neighboring values, and if that doesn't work, setting it to the default 
+	value.
+	
+	args:
+		array (np.ndarray): array to have missing values imputed
+		default (float): default value if neighboring values cannot be used for
+			impuation
+	
+	returns:
+		imputed_array (np.ndarray): array with missing and infinite values
+			imputed
+	"""
+	nans = np.isnan(array)
+	indexer = lambda z: z.nonzero()[0]
+	array[nans] = np.interp(indexer(nans), indexer(~nans), array[~nans])
+	return array
 
-		#pdb.set_trace()
-		return normalized,price_change
+def get_local_prices(global_price_array, window_size, stride, current_step):
+	# TODO: add 5 metrics to documentation
+	# TODO: do we need to compute 
+	"""
+	Gets normalized price window and relative price change array for a given
+	stride step in the global_price_array.
+
+	args:
+		global_price_array (np.ndarray): m x n x p array of p metrics of m
+			currencies over n timesteps. Metrics are WHAT ARE METRICS
+		window_size (int): number of timesteps to include in each window
+		stride (int): distance between starting indices of consecutive windows
+	"""
+	start = current_step * stride
+	stop = start + window_size
+	end = global_price_array.shape[1]
+
+	if stop < end:
+		local_window = global_price_array[:,start:stop]
+		local_window_shift = global_price_array[:,start+1:stop+1]
+
+		last_val = local_window[:,(window_size-1):window_size]
+		#lost_val_shift = local_window_shift[:,-1]
+
+		# TODO: could try norm based on mean or max or sum=1
+		norm_local_window = np.divide(local_window, np.abs(last_val))
+		price_change_array = np.divide(local_window, local_window_shift)
+		# remove volume and open
+		price_change_array = price_change_array[:,:,0]
+
+		norm_local_window = impute_missing_and_inf(norm_local_window)
+		price_change_array = impute_missing_and_inf(price_change_array)
+
+		return norm_local_window, price_change_array
 
 def get_data(array,window_size,stride):
-	length = array.shape[1]
-	n = int(length/stride) - 1
+	num_time_steps = array.shape[1]
+	n = int(num_time_steps / stride) - 1
 	train = []
 	price_changes = []
-	for i in range(n-window_size):
-		prices, pc = get_local_prices(window_size,stride,array,i)
+
+	for i in range(n - window_size):
+		prices, pc = get_local_prices(array, window_size, stride, i)
 		train.append(prices)
 		price_changes.append(pc[:,window_size-1:window_size])
+
 	return np.array(train),np.array(price_changes)
 
 def get_random_batch_index_geometric(max_index, hparams):
