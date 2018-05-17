@@ -34,22 +34,22 @@ def set_hparams(test=False) -> HParams:
 		window_size=50,
 		stride=1,
 		batch_size=100,
-		num_training_steps=200000,
+		num_training_steps=50000,
 		learning_rate=2e-4,
 		geometric_decay=0.5,  # the large geometric_decay is the more recent times will be selected in training
 		conv_layers_separable=True,
 		len_conv1_filters=3,
-		num_conv1_features=8,
+		num_conv1_features=4,
 		# TODO: possibly have len_conv2_filters not just be the entire length as it currently is
 		# len_conv2_filters = xxx
-		num_conv2_features=32,
+		num_conv2_features=16,
 		num_fc1_neurons=12,   # only for option two_fc_layers; it is set to num_coins for one_fc_layer in cnn.py
 		model_ending='one_fc_layer',   # options: two_fc_layers, one_fc_layer, third_conv_layer
 		dropout_keep_prob=0.5,
 	)
 	if test:
 		hparams.set_hparam('batch_size', 30)
-		hparams.set_hparam('num_training_steps', 4)
+		hparams.set_hparam('num_training_steps', 10)
 	return hparams
 
 
@@ -84,8 +84,8 @@ def init_search_space_dict(test=False) -> dict:
 		dim_dropout_keep_prob=space.Real(low=.1, high=.9, name='dropout_keep_prob'),
 	)
 	if test:
-		search_space_dict.update({'dim_batch_size': space.Integer(low=10, high=30, name='batch_size'),
-								  'dim_num_training_steps': space.Integer(low=2, high=4, name='num_training_steps'),
+		search_space_dict.update({'dim_batch_size': space.Integer(low=20, high=60, name='batch_size'),
+								  'dim_num_training_steps': space.Integer(low=10, high=20, name='num_training_steps'),
 								  'dim_window_size': space.Integer(low=10, high=50, name='window_size'),
 								  'dim_stride': space.Integer(low=1, high=2, name='stride')})
 	return search_space_dict
