@@ -191,24 +191,6 @@ def split_data(global_price_array, train_size, val_size, test_size):
 	test = global_price_array[:, train_len + val_len:]
 	return train, val, test
 
-def nan_helper(array):
-    """Helper to handle indices and logical indices of NaNs.
-
-    args:
-        array (np.ndarray): array with possible np.nan values
-    
-    Output:
-        nans (int): logical indices of NaNs
-        index (function): a function, with signature indices= index(logical_indices),
-        	to convert logical indices of NaNs to 'equivalent' indices
-    Example:
-        >>> # linear interpolation of NaNs
-        >>> nans, x= nan_helper(y)
-        >>> y[nans]= np.interp(x(nans), x(~nans), y[~nans])
-    """
-
-    return np.isnan(y), lambda z: z.nonzero()[0]
-
 def impute_missing_and_inf(array, default=1.0):
 	"""
 	Imputes missing or infinite values in array by trying to average the
@@ -224,6 +206,9 @@ def impute_missing_and_inf(array, default=1.0):
 		imputed_array (np.ndarray): array with missing and infinite values
 			imputed
 	"""
+	array[array == np.inf] = 0.0001
+	array[array == -np.inf] = 0.0001
+
 	nans = np.isnan(array)
 	indexer = lambda z: z.nonzero()[0]
 	array[nans] = np.interp(indexer(nans), indexer(~nans), array[~nans])
