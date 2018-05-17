@@ -44,6 +44,8 @@ class CryptoBot:
         self.basedir = self.create_basedir()
         self.save_hparams_pickle()
         self.tensorboard_callback()
+        self.input_array = pdata.get_price_data(test=self.test)
+
         self.rest()
 
     def create_basedir(self):
@@ -69,7 +71,8 @@ class CryptoBot:
         with open(master_filepath, 'wb') as handle:
             pickle.dump(master_entry, handle, protocol=pickle_protocol)
 
-    def tensorboard_callback(self):
+    @staticmethod
+    def tensorboard_callback():
         callback_log = TensorBoard(
             histogram_freq=0,
             batch_size=32,
@@ -79,32 +82,16 @@ class CryptoBot:
         return callback_log
 
     def rest(self):
-        try:
-            if self.test:
-                input_array = pdata.read_data('data/test/')
-            else:
-                input_array = pdata.read_data()
-        except:
-            if self.test:
-                pnx.fetch_data(test=True)
-                input_array = pdata.read_data('data/test/')
-            else:
-                pnx.fetch_data()
-                input_array = pdata.read_data()
-        total_time_steps = input_array.shape[1]
-        train_size = int(total_time_steps*0.7)
-        validation_size = int(total_time_steps*0.15)
-        test_size = int(total_time_steps*0.15)
-        train, validation, test = pdata.split_data(input_array, train_size, validation_size, test_size)
+        train, val, test = pdata.split_data(self.input_array, train_size=.70, val_size=.15, test_size=.15)
         train_data, train_labels = pdata.get_data(train, self.hparams.window_size, self.hparams.stride)
-        print('\nNumber of training data steps = %d' % train_labels.shape[0])
-        validation_data, validation_labels = pdata.get_data(validation, self.hparams.window_size, self.hparams.stride)
-        validation_labels = np.reshape(validation_labels, (validation_labels.shape[0], self.params.num_coins))
-        btc_btc = np.ones( (1, validation_labels.shape[0]), dtype=np.float32)
-        validation_labels = np.insert(validation_labels, 0, btc_btc, axis=1)
-        validation_path = self.basedir + 'validation/'
-        fn.check_path(validation_path)
-        opt_val_portfolio, opt_val_port_return = pdata.calc_optimal_portfolio(validation_labels, validation_path)
+        print('\nNumber of training data steps = {0}'.format(train_labels.shape[0]))
+        val_data, val_labels = pdata.get_data(val, self.hparams.window_size, self.hparams.stride)
+        val_labels = np.reshape(val_labels, (val_labels.shape[0], self.params.num_coins))
+        btc_btc = np.ones( (1, val_labels.shape[0]), dtype=np.float32)
+        val_labels = np.insert(val_labels, 0, btc_btc, axis=1)
+        val_path = self.basedir + 'val/'
+        fn.check_path(val_path)
+        opt_val_portfolio, opt_val_port_return = pdata.calc_optimal_portfolio(val_labels, val_path)
         test_data, test_labels = pdata.get_data(test, self.hparams.window_size, self.hparams.stride)
         test_labels = np.reshape(test_labels, (test_labels.shape[0], self.params.num_coins))
         btc_btc = np.ones( (1, test_labels.shape[0]), dtype=np.float32)
@@ -189,19 +176,19 @@ class CryptoBot:
                         init_weights: input_weights, batch_size: self.hparams.batch_size, keep_prob: 1.0})
                     print('Step = %d\nBatch = %d\nTrain_accuracy = %g\nTrain_value = %g' % (i, batch[2], train_accuracy, train_value))
                 if i % 10000 == 0 or i == self.hparams.num_training_steps-1:
-                    validation_weights = np.zeros((1, validation_labels.shape[1]))
-                    validation_weights[0,0]  = 1.0
-                    v = np.ones((validation_labels.shape[0]))
+                    val_weights = np.zeros((1, val_labels.shape[1]))
+                    val_weights[0,0]  = 1.0
+                    v = np.ones((val_labels.shape[0]))
                     portfolio_value = 1.0
-                    for i in range(0, validation_labels.shape[0]):
-                        v_labels = np.reshape(validation_labels[i,:], (1, validation_labels.shape[1]))
-                        v_data = np.reshape(validation_data[i,:], (1, validation_data.shape[1], validation_data.shape[2], validation_data.shape[3]))
+                    for i in range(0, val_labels.shape[0]):
+                        v_labels = np.reshape(val_labels[i,:], (1, val_labels.shape[1]))
+                        v_data = np.reshape(val_data[i,:], (1, val_data.shape[1], val_data.shape[2], val_data.shape[3]))
                         v[i] = final_value.eval(feed_dict={input_prices: v_data, labels: v_labels,
-                                    init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
+                                    init_weights: val_weights, batch_size: 1, keep_prob: 1.0})
                         portfolio_value = portfolio_value*v[i]
-                        validation_weights = weights.eval(feed_dict={input_prices: v_data, labels: v_labels,
-                            init_weights: validation_weights, batch_size: 1, keep_prob: 1.0})
-                    print('validation_steps %d, validation_time = %g validation_value %g' % (validation_labels.shape[0], validation_labels.shape[0]/48.0, portfolio_value))
+                        val_weights = weights.eval(feed_dict={input_prices: v_data, labels: v_labels,
+                            init_weights: val_weights, batch_size: 1, keep_prob: 1.0})
+                    print('val_steps %d, val_time = %g val_value %g' % (val_labels.shape[0], val_labels.shape[0]/48.0, portfolio_value))
                     if (portfolio_value > best_val_value):
                         save_path_best_model = saver.save(sess, path_to_best_model)
                         best_val_value = portfolio_value
@@ -209,8 +196,8 @@ class CryptoBot:
                         models_dict = self.get_models_dict()
                         models_dict[best_val_value] = save_path_best_model
                         self.set_models_dict(models_dict)
-                        np.savetxt(validation_path + 'proper_validation_returns.out', v, fmt='%.8f', delimiter=' ')
-                        print('new best validation value, best model weights saved in %s\n' % save_path_best_model)
+                        np.savetxt(val_path + 'proper_val_returns.out', v, fmt='%.8f', delimiter=' ')
+                        print('new best val value, best model weights saved in %s\n' % save_path_best_model)
                     train_step.run(feed_dict={input_prices: batch[0], labels: batch[1],
                     init_weights: input_weights, batch_size: self.hparams.batch_size, keep_prob: self.hparams.dropout_keep_prob})
 

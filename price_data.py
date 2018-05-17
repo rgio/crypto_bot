@@ -14,6 +14,24 @@ DEFAULT_DIRECTORY = 'data/'
 PAIRS = ["BTC_BTS","BTC_ZEC","BTC_STRAT","BTC_XEM","BTC_STEEM","BTC_LTC","BTC_ETC","BTC_XRP","BTC_XMR","BTC_DASH","BTC_ETH",
    "BTC_STR", "BTC_LSK", "BTC_DOGE", "BTC_SC", "BTC_SYS", "BTC_DGB", "BTC_MAID", "BTC_NXT", "BTC_BCN"] # 21 total coins
 
+import poloniex_api as pnx
+
+def get_price_data(test=False):
+		try:
+			if test:
+				input_array = read_data('data/test/')
+			else:
+				input_array = read_data()
+		
+		except:
+			if test:
+				pnx.fetch_data(test=test)
+				input_array = pread_data('data/test/')
+			else:
+				pnx.fetch_data()
+				input_array = read_data()
+
+		return input_array
 
 
 def read_data(directory=DEFAULT_DIRECTORY, pairs=PAIRS):
@@ -150,7 +168,7 @@ def calc_optimal_portfolio(price_change, save_path):
 def get_current_window():
 	t = time.time()
 	t0 = t-(100000)
-	pnx.fetch_data(start_time=t0,path='live_data/')
+	pnx.fetch_data(start_time=t0, path='live_data/')
 	array = read_data('live_data/')
 	array = array.astype(np.float32)
 	data = array[:,-51:-1,:]
@@ -160,13 +178,20 @@ def get_current_window():
 	labels = labels.T
 	return data, labels
 
-def split_data(global_price_array,train_size,validation_size,test_size):
-	train = global_price_array[:,:train_size]
-	validation = global_price_array[:,train_size:train_size+validation_size]
-	test = global_price_array[:,train_size+validation_size:]
-	return train,validation,test
+def split_data(global_price_array, train_size, val_size, test_size):
+	# TODO: Is this a good way to split up the global_price_array
+	total_time_steps = global_price_array.shape[1]
+	train_len = int(total_time_steps * train_size)
+	val_len = int(total_time_steps * val_size)
+	test_len = int(total_time_steps * test_size)
 
-def get_local_prices(window_size,stride,global_price_array,current_step):
+	train = global_price_array[:, :train_len]
+	val = global_price_array[:, train_len:train_len + val_len]
+	test = global_price_array[:, train_len + val_len:]
+	return train, val, test
+
+
+def get_local_prices(window_size, stride, global_price_array, current_step):
 	start = current_step*stride
 	stop = start+window_size
 	if(stop<global_price_array.shape[1]):
