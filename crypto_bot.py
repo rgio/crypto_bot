@@ -97,10 +97,10 @@ class CryptoBot:
         opt_test_portfolio, opt_test_port_return = pdata.calc_optimal_portfolio(test_labels, test_path)
 
         # Create the model
-        input_prices = tf.placeholder(tf.float32, [None, params.num_coins, hparams.window_size, params.num_input_channels])
-        labels = tf.placeholder(tf.float32, [None, params.num_coins+1])
-        init_weights = tf.placeholder(tf.float32, [None, params.num_coins+1])
-        batch_size = tf.placeholder(tf.int32)
+        input_prices = tf.placeholder(tf.float32, [None, params.num_coins, hparams.window_size, params.num_input_channels], name='nn_input')
+        labels = tf.placeholder(tf.float32, [None, params.num_coins+1], name='labels')
+        init_weights = tf.placeholder(tf.float32, [None, params.num_coins+1], name='initial_weights')
+        batch_size = tf.placeholder(tf.int32, name='batch_size')
 
         # Build the graph
         weights, keep_prob = cnn.cnn_model(input_prices, init_weights, hparams, params)
